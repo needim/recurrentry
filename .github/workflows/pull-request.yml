@@ -13,5 +13,5 @@ jobs:
         with:
           node-version: 20
           cache: "pnpm"
-      - run: pnpm install
+      - uses: ./.github/actions/setup-node-pnpm-install
       - run: pnpm test
