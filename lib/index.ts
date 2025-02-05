@@ -1,4 +1,4 @@
 export { generator } from "./generator";
 export * from "./type-guards";
-export type * from "./types";
+export * from "./types";
 export { addByPeriod, createDate, paymentDate } from "./utils";

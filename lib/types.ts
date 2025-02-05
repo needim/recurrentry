@@ -65,7 +65,8 @@ export type SinglePayment = BasePayment & {
 	period: typeof PERIOD.NONE;
 	options: Readonly<{
 		every?: never;
-		/** Whether payment should only occur on working days */
+		/** Whether payment should only occur on working days
+		 *it counts holidays and weekendDays as non-working days */
 		workdaysOnly?: boolean;
 		on?: never;
 		/** Number of days after billing cycle for payment due date */
@@ -79,7 +80,8 @@ export type SinglePayment = BasePayment & {
 export type WeeklyPayment = BasePayment & {
 	period: typeof PERIOD.WEEK;
 	options: Readonly<{
-		/** Whether payment should only occur on working days */
+		/** Whether payment should only occur on working days
+		 *it counts holidays and weekendDays as non-working days */
 		workdaysOnly?: boolean;
 		/** How many weeks between payments */
 		every: number;
@@ -98,7 +100,8 @@ export type WeeklyPayment = BasePayment & {
 export type MonthlyPayment = BasePayment & {
 	period: typeof PERIOD.MONTH;
 	options: Readonly<{
-		/** Whether payment should only occur on working days */
+		/** Whether payment should only occur on working days
+		 *it counts holidays and weekendDays as non-working days */
 		workdaysOnly?: boolean;
 		/** How many months between payments */
 		every: number;
@@ -117,7 +120,8 @@ export type MonthlyPayment = BasePayment & {
 export type YearlyPayment = BasePayment & {
 	period: typeof PERIOD.YEAR;
 	options: Readonly<{
-		/** Whether payment should only occur on working days */
+		/** Whether payment should only occur on working days
+		 *it counts holidays and weekendDays as non-working days */
 		workdaysOnly?: boolean;
 		/** How many years between payments */
 		every: number;

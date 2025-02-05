@@ -220,6 +220,7 @@ describe("Weekly", () => {
 					interval: 2,
 					options: {
 						every: 1,
+						workdaysOnly: true,
 					},
 				} satisfies WeeklyPayment,
 			},
@@ -251,6 +252,7 @@ describe("Weekly", () => {
 					start: baseDate,
 					interval: 3,
 					options: {
+						workdaysOnly: true,
 						every: 2, // Every 2 weeks
 					},
 				} satisfies WeeklyPayment,
@@ -308,6 +310,7 @@ describe("Weekly", () => {
 					start: baseDate,
 					interval: 1,
 					options: {
+						workdaysOnly: true,
 						every: 1,
 						each: [3, 4], // Wednesday and Thursday
 					},

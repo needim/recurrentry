@@ -1,5 +1,6 @@
 import * as index from "../lib";
 import {
+	PERIOD,
 	addByPeriod,
 	createDate,
 	generator,
@@ -19,6 +20,7 @@ const allowedExports = {
 	createDate,
 	generator,
 	paymentDate,
+	PERIOD,
 };
 
 describe("Index tests", () => {

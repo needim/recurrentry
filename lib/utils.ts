@@ -140,7 +140,10 @@ export function paymentDate(
 		plainDate = plainDate.add({ days: gracePeriod });
 	}
 
-	if ((workdaysOnly && weekendDays.length > 0) || holidays.length > 0) {
+	if (
+		(workdaysOnly && weekendDays.length > 0) ||
+		(workdaysOnly && holidays.length > 0)
+	) {
 		while (
 			weekendDays.includes(plainDate.dayOfWeek) ||
 			holidays.some((holiday) => holiday.equals(plainDate))

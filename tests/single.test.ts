@@ -133,7 +133,9 @@ describe("Single", () => {
 					period: PERIOD.NONE,
 					start: holidayDate,
 					interval: 1,
-					options: {},
+					options: {
+						workdaysOnly: true,
+					},
 				} satisfies SinglePayment,
 			},
 		];
@@ -191,6 +193,7 @@ describe("Single", () => {
 					start: startDate,
 					interval: 1,
 					options: {
+						workdaysOnly: true,
 						gracePeriod: 5,
 					},
 				} satisfies SinglePayment,
