@@ -11,12 +11,29 @@ I built this library to help me manage my personal finances and automate recurri
 
 ## 🚀 Key Features
 
+### Payment Scheduling
+
 - ✨ Single and recurring payments (single, weekly, monthly, yearly)
 - 🔄 Support for payment modifications (edit, delete)
-- 📅 Weekend days and holidays handling
-- ⏰ Grace period support for monthly payments
+- 💼 Business day adjustments (skip weekends/holidays)
+- ⏰ Grace period support for payment due dates
 - 📆 Day-level precision using Temporal API
 - 🛡️ Type-safe configuration with TypeScript
+
+### Advanced Payment Rules
+
+- 🔢 Flexible payment intervals (every X weeks/months/years)
+- 📅 Ordinal day specifications:
+  - `first-monday`, `last-friday`, `first-weekday`, `last-weekend`
+  - Supports all combinations of:
+    - Position: first, second, third, fourth, fifth, last, nextToLast
+    - Type: day, weekday, weekend, or specific day (monday-sunday)
+
+### Modifications
+
+- ✏️ Edit amount, date, or recurrence rules
+- 🗑️ Delete single or future occurrences
+- 📝 Apply changes to future payments
 
 ## 🗓️ Date Handling
 
