@@ -7,7 +7,7 @@
 
 A highly opinionated TypeScript library for handling recurring payments with precision and flexibility.
 
-I built this library to help me manage my personal finances and automate recurring payments for my income & expense trackking app [gider.im](https://gider.im).
+I built this library to help me manage my personal finances and automate recurring payments for my income & expense trackking app [gider.im](https://gider.im?utm_source=recurrentry&utm_medium=github&utm_campaign=library).
 
 ## 🚀 Key Features
 
