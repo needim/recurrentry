@@ -5,34 +5,40 @@
 </div>
 </h1>
 
-An opinionated library for handling recurring payments.
+A highly opinionated TypeScript library for handling recurring payments with precision and flexibility.
 
-## Features
+I built this library to help me manage my personal finances and automate recurring payments for my income & expense trackking app [gider.im](https://gider.im).
 
-- Supports single and recurring payments (single, weekly, monthly, yearly)
-- Day-level precision (time components are ignored)
-- Type-safe configuration with TypeScript
-- Built-in type guards for payment configurations
+## 🚀 Key Features
 
-## Date Handling
+- ✨ Single and recurring payments (single, weekly, monthly, yearly)
+- 🔄 Support for payment modifications (edit, delete)
+- 📅 Weekend days and holidays handling
+- ⏰ Grace period support for monthly payments
+- 📆 Day-level precision using Temporal API
+- 🛡️ Type-safe configuration with TypeScript
+
+## 🗓️ Date Handling
 
 The library operates with day-level precision using the Temporal API:
 
 - Uses `Temporal.PlainDate` for all date operations
-- All time components are ignored by design
 - Helper function `createDate()` provided for easy date creation
-- Dates should be provided as Temporal.PlainDate
+- It's a peer dependency
 
-## Installation
+## 📦 Installation
 
 ```bash
 pnpm install recurrentry
+# or
 bun install recurrentry
+# or
 npm install recurrentry
+# or
 yarn add recurrentry
 ```
 
-## Usage Example
+## 🎯 Quick Example
 
 ```typescript
 const data = [
@@ -126,7 +132,7 @@ const result = generator({
 });
 ```
 
-## Example Generator Result
+## 🟰 Example Generator Result
 
 | #-index | amount   | period   | occurrence date | payment date |
 | ------- | -------- | -------- | --------------- | ------------ |
@@ -144,13 +150,13 @@ const result = generator({
 | 4/2     | 1000.00  | month    | 2024-02-01      | 2024-02-12   |
 | 4/3     | 1000.00  | month    | 2024-03-01      | 2024-03-11   |
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a new branch for your changes
 3. Make your changes and write tests if applicable
 4. Submit a pull request
 
-## License
+## 📄 License
 
 Licensed under the [MIT License](LICENSE).
