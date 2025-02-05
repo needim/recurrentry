@@ -7,6 +7,7 @@ describe("Single", () => {
 	const sampleEntry = {
 		id: "1",
 		date: baseDate,
+		amount: "100.00",
 	};
 	const weekendDays = [6, 7];
 
@@ -51,6 +52,42 @@ describe("Single", () => {
 		expect(result).toHaveLength(1);
 		expect(result[0].actualDate.toString()).toBe("2024-01-01");
 		expect(result[0].paymentDate.toString()).toBe("2024-01-01");
+	});
+
+	test("with modification", () => {
+		const data = [
+			{
+				...sampleEntry,
+				config: {
+					period: PERIOD.NONE,
+					start: baseDate,
+					interval: 1,
+					options: {
+						workdaysOnly: true,
+					},
+				} satisfies SinglePayment,
+			},
+		];
+
+		const result = generator({
+			data,
+			modifications: [
+				{
+					itemId: "1",
+					index: 1,
+					type: "edit",
+					data: {
+						amount: "300.00",
+					},
+				},
+			],
+			weekendDays,
+		});
+
+		expect(result).toHaveLength(1);
+		expect(result[0].actualDate.toString()).toBe("2024-01-01");
+		expect(result[0].paymentDate.toString()).toBe("2024-01-01");
+		expect(result[0].$.amount).toBe("300.00");
 	});
 
 	test("with grace period", () => {

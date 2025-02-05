@@ -131,12 +131,25 @@ export function generator<T extends BaseEntry>({
 				workdaysOnly,
 			);
 
+			const newEntry = { ...entry };
 			result.push({
-				$: entry,
+				$: newEntry,
 				index: 1,
 				actualDate: entry.date,
 				paymentDate: adjustedDate,
 			});
+
+			// Apply modifications for single entries
+			const lastEntry = result[result.length - 1];
+			const { shouldDelete } = applyModifications(
+				entry,
+				1,
+				modifications,
+				lastEntry,
+			);
+			if (shouldDelete) {
+				result.pop();
+			}
 			continue;
 		}
 

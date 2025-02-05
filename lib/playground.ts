@@ -60,7 +60,7 @@ const data = [
 		config: {
 			period: PERIOD.MONTH,
 			start: createDate("2024-01-01"),
-			interval: 3,
+			interval: 5,
 			options: {
 				every: 1,
 				workdaysOnly: true,
@@ -73,6 +73,14 @@ const data = [
 const result = generator({
 	data,
 	modifications: [
+		{
+			itemId: 1,
+			index: 1,
+			type: "edit",
+			data: {
+				amount: "300.00",
+			},
+		},
 		{
 			itemId: 3,
 			index: 2,
@@ -88,6 +96,16 @@ const result = generator({
 			type: "edit",
 			applyToFuture: true,
 			data: {
+				amount: "555.12",
+			},
+		},
+		{
+			itemId: 4,
+			index: 3,
+			type: "edit",
+			applyToFuture: true,
+			data: {
+				date: createDate("2024-01-15"),
 				amount: "555.12",
 			},
 		},
