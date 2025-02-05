@@ -7,27 +7,12 @@
 
 An opinionated library for handling recurring payments.
 
-## Installation
-
-```bash
-pnpm install recurrentry
-bun install recurrentry
-yarn add recurrentry
-npm install recurrentry
-```
-
 ## Features
 
 - Supports single and recurring payments (single, weekly, monthly, yearly)
 - Day-level precision (time components are ignored)
 - Type-safe configuration with TypeScript
 - Built-in type guards for payment configurations
-
-## Usage
-
-```typescript
-TODO: Add usage examples
-```
 
 ## Date Handling
 
@@ -38,9 +23,22 @@ The library operates with day-level precision using the Temporal API:
 - Helper function `createDate()` provided for easy date creation
 - Dates should be provided in ISO 8601 format (YYYY-MM-DD)
 
-## Contributing
+## Installation
 
-We welcome contributions. To get started:
+```bash
+pnpm install recurrentry
+bun install recurrentry
+npm install recurrentry
+yarn add recurrentry
+```
+
+## Usage
+
+```typescript
+TODO: Add usage examples
+```
+
+## Contributing
 
 1. Fork the repository
 2. Create a new branch for your changes
