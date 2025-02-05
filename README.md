@@ -1,4 +1,9 @@
-# recurrentry
+<h1> 
+🌀 recurrentry
+<div style="display: flex; gap: 10px;">
+ <img src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/needim/ccae711fb07ccaed86d73f03c1922557/raw/badge.json" />
+</div>
+</h1>
 
 An opinionated library for handling recurring payments.
 
