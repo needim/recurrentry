@@ -32,7 +32,7 @@ npm install recurrentry
 yarn add recurrentry
 ```
 
-## Usage
+## Usage Example
 
 ```typescript
 const data = [
@@ -98,6 +98,7 @@ const data = [
   },
 ];
 
+// Let's generate the payments
 const result = generator({
   data,
   modifications: [
@@ -125,7 +126,7 @@ const result = generator({
 });
 ```
 
-## Output
+## Example Generator Result
 
 | #-index | amount   | period   | occurrence date | payment date |
 | ------- | -------- | -------- | --------------- | ------------ |
