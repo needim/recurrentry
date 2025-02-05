@@ -46,7 +46,7 @@ const data = [
       start: createDate("2024-01-01"),
       interval: 1,
       options: {
-        workdaysOnly: false, // allows on non-working days
+        workdaysOnly: false,
       },
     } satisfies SinglePayment,
   },
