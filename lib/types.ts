@@ -163,3 +163,10 @@ export interface BaseEntry {
   date: Temporal.PlainDate;
   config?: RecurrenceConfig;
 }
+
+export type GeneratedEntry<Data extends BaseEntry> = {
+  $: Data;
+  index: number;
+  actualDate: Temporal.PlainDate;
+  paymentDate: Temporal.PlainDate;
+};

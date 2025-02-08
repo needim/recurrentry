@@ -1,35 +1,31 @@
 import { Temporal } from "temporal-polyfill";
 import { MAX_INTERVALS } from "./defaults";
-import type { BaseEntry, Modification } from "./types";
+import type { BaseEntry, GeneratedEntry, Modification } from "./types";
 import { addByPeriod, getOrdinalDate, paymentDate } from "./utils";
 
 /**
- * Generates payment occurrences based on provided data and modifications.
+ * Generates recurring entries based on the provided configuration and modifications.
  *
- * @param options - Configuration options for building occurrences
- * @param options.data - Array of base entries to generate occurrences from
- * @param options.modifications - Array of modifications to apply to the occurrences
- * @param options.maxIntervals - Maximum number of intervals per period type (defaults to MAX_INTERVALS)
- * @param options.holidays - Array of holiday dates to consider when calculating payment dates
- * @param options.weekendDays - Array of numbers representing weekend days (0-6, where 0 is Sunday) (defaults to [0,6])
+ * @param options - The configuration options for generating entries
+ * @param options.data - Array of base entries to generate recurrences from
+ * @param options.modifications - Array of modifications to apply to the generated entries
+ * @param options.maxIntervals - Maximum number of intervals to generate for each period type (defaults to MAX_INTERVALS)
+ * @param options.holidays - Array of dates to be considered as holidays
+ * @param options.weekendDays - Array of numbers representing weekend days (6-7, where 7 is Sunday)
+ * @param options.range - Optional date range to filter generated entries
+ * @param options.range.start - Start date of the range (inclusive)
+ * @param options.range.end - End date of the range (inclusive)
  *
- * @returns Array of occurrence objects containing:
- *  - $ - The modified entry data
- *  - index - The occurrence index number
- *  - actualDate - The original calculated date before adjustments
- *  - paymentDate - The final date after all adjustments (holidays, weekends, grace period)
+ * @returns Array of generated entries with their occurrence information including actual and payment dates
  *
  * @remarks
- * - For entries without config or with period="none", only one occurrence is generated
- * - Payment dates are adjusted according to:
- *   - Weekend days
- *   - Holidays
- *   - Grace periods
- *   - Work days only option
- * - Modifications can:
- *   - Delete single or future occurrences
- *   - Edit single or future occurrences
- *   - Adjust payment dates while preserving the original schedule pattern
+ * - Handles both single payments and recurring entries
+ * - Supports different period types: weekly, monthly, yearly
+ * - Applies modifications like deletions and edits to entries
+ * - Handles workdays-only option and grace periods
+ * - Supports multiple occurrences within a period using the 'each' option
+ * - Supports specific day targeting using the 'on' option
+ * - Automatically adjusts dates for holidays and weekends based on configuration
  */
 export function generator<T extends BaseEntry>({
   data,
@@ -48,18 +44,8 @@ export function generator<T extends BaseEntry>({
     start?: Temporal.PlainDate;
     end?: Temporal.PlainDate;
   };
-}): Array<{
-  $: T;
-  index: number;
-  actualDate: Temporal.PlainDate;
-  paymentDate: Temporal.PlainDate;
-}> {
-  const result: Array<{
-    $: T;
-    index: number;
-    actualDate: Temporal.PlainDate;
-    paymentDate: Temporal.PlainDate;
-  }> = [];
+}): Array<GeneratedEntry<T>> {
+  const result: Array<GeneratedEntry<T>> = [];
 
   const isInRange = (date: Temporal.PlainDate): boolean => {
     if (!range) return true;
@@ -77,12 +63,7 @@ export function generator<T extends BaseEntry>({
     entry: T,
     index: number,
     modifications: Array<Modification<T>>,
-    lastEntry: {
-      $: T;
-      index: number;
-      actualDate: Temporal.PlainDate;
-      paymentDate: Temporal.PlainDate;
-    }
+    lastEntry: GeneratedEntry<T>
   ): {
     shouldDelete: boolean;
     deleteFuture: boolean;
