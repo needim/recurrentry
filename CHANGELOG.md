@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.1.0
+
+### Minor Changes
+
+- acce024: Better weekly payment handling
+
 ## 0.0.2
 
 ### Patch Changes
