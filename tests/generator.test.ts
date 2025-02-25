@@ -2,32 +2,6 @@ import { generator } from "../lib/generator";
 import { PERIOD, type YearlyPayment } from "../lib/types";
 import { createDate } from "../lib/utils";
 
-describe("Generator weekly period edge cases", () => {
-  it("should handle weekly payments with dates outside current week", () => {
-    const entry = {
-      id: "1",
-      date: createDate("2024-01-01"),
-      config: {
-        start: createDate("2024-01-01"),
-        period: PERIOD.WEEK,
-        interval: 2,
-        options: {
-          every: 1,
-          each: [1, 7], // Monday (1) and Sunday (7)
-        },
-      },
-    };
-
-    const result = generator({
-      data: [entry],
-      modifications: [],
-    });
-
-    // This should only include dates within their respective weeks
-    expect(result).toHaveLength(2); // Only valid dates within the weeks
-  });
-});
-
 describe("Generator deletion modifications", () => {
   it("should handle delete future with rest flag", () => {
     const entry = {

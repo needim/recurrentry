@@ -20,7 +20,7 @@ import { addByPeriod, getOrdinalDate, paymentDate } from "./utils";
  *
  * @remarks
  * - Handles both single payments and recurring entries
- * - Supports different period types: weekly, monthly, yearly
+ * - Supports different period types: monthly, yearly
  * - Applies modifications like deletions and edits to entries
  * - Handles workdays-only option and grace periods
  * - Supports multiple occurrences within a period using the 'each' option
@@ -112,38 +112,14 @@ export function generator<T extends BaseEntry>({
       // Skip if payment date is out of range
       if (!isInRange(entry.date)) continue;
 
-      // Get workdaysOnly and gracePeriod from config if available
-      const workdaysOnly = entry.config?.options?.workdaysOnly || false;
-      const gracePeriod = entry.config?.options?.gracePeriod || 0;
-
-      // Use paymentDate to handle workdaysOnly and gracePeriod adjustments
-      const adjustedDate = paymentDate(
-        entry.date,
-        gracePeriod,
-        holidays,
-        weekendDays,
-        workdaysOnly
-      );
-
       const newEntry = { ...entry };
       result.push({
         $: newEntry,
         index: 1,
         actualDate: entry.date,
-        paymentDate: adjustedDate,
+        paymentDate: entry.date,
       });
 
-      // Apply modifications for single entries
-      const lastEntry = result[result.length - 1];
-      const { shouldDelete } = applyModifications(
-        entry,
-        1,
-        modifications,
-        lastEntry
-      );
-      if (shouldDelete) {
-        result.pop();
-      }
       continue;
     }
 
@@ -174,14 +150,6 @@ export function generator<T extends BaseEntry>({
           let targetDate = baseDate;
 
           switch (period) {
-            case "week": {
-              // Adjust to the target day within the current week
-              const currentDay = targetDate.dayOfWeek;
-              const targetDay = target;
-              const diff = targetDay - currentDay;
-              targetDate = targetDate.add({ days: diff });
-              break;
-            }
             case "month": {
               // Adjust to the target day within the current month
               targetDate = targetDate.with({ day: target });
@@ -201,20 +169,7 @@ export function generator<T extends BaseEntry>({
 
           // Only add the occurrence if the date is valid
           if (targetDate) {
-            // For weekly payments, ensure the date is within the current week
-            if (period === "week") {
-              const weekStart = baseDate.subtract({ days: baseDate.dayOfWeek });
-              const weekEnd = weekStart.add({ days: 6 });
-
-              if (
-                Temporal.PlainDate.compare(targetDate, weekStart) >= 0 &&
-                Temporal.PlainDate.compare(targetDate, weekEnd) <= 0
-              ) {
-                occurrenceDates.push(targetDate);
-              }
-            } else {
-              occurrenceDates.push(targetDate);
-            }
+            occurrenceDates.push(targetDate);
           }
         }
 

@@ -6,7 +6,6 @@ import type { Temporal } from "temporal-polyfill";
  */
 export const PERIOD = {
   NONE: "none",
-  WEEK: "week",
   MONTH: "month",
   YEAR: "year",
 } as const;
@@ -63,36 +62,29 @@ export type BasePayment = {
  */
 export type SinglePayment = BasePayment & {
   period: typeof PERIOD.NONE;
-  options: Readonly<{
-    every?: never;
-    /** Whether payment should only occur on working days
-     *it counts holidays and weekendDays as non-working days */
-    workdaysOnly?: boolean;
-    on?: never;
-    /** Number of days after billing cycle for payment due date */
-    gracePeriod?: number;
-  }>;
+  interval: 1;
+  options?: never;
 };
 
 /**
  * Configuration for weekly recurring payments
  */
-export type WeeklyPayment = BasePayment & {
-  period: typeof PERIOD.WEEK;
-  options: Readonly<{
-    /** Whether payment should only occur on working days
-     *it counts holidays and weekendDays as non-working days */
-    workdaysOnly?: boolean;
-    /** How many weeks between payments */
-    every: number;
-    /** Specific days of the week for payment (0-6) */
-    each?: number[];
-    /** Ordinal specification for payment date within specified days (e.g., "first-monday") */
-    on?: never;
-    /** Number of days after billing cycle for payment due date */
-    gracePeriod?: number;
-  }>;
-};
+// export type WeeklyPayment = BasePayment & {
+//   period: typeof PERIOD.WEEK;
+//   options: Readonly<{
+//     /** Whether payment should only occur on working days
+//      *it counts holidays and weekendDays as non-working days */
+//     workdaysOnly?: boolean;
+//     /** How many weeks between payments */
+//     every: number;
+//     /** Specific days of the week for payment (1-7) */
+//     each?: number[];
+//     /** Ordinal specification for payment date within specified days (e.g., "first-monday") */
+//     on?: never;
+//     /** Number of days after billing cycle for payment due date */
+//     gracePeriod?: number;
+//   }>;
+// };
 
 /**
  * Configuration for monthly recurring payments
@@ -139,7 +131,7 @@ export type YearlyPayment = BasePayment & {
  */
 export type RecurrenceConfig =
   | SinglePayment
-  | WeeklyPayment
+  // | WeeklyPayment
   | MonthlyPayment
   | YearlyPayment;
 
