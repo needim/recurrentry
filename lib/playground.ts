@@ -10,6 +10,7 @@ import {
 const data = [
   {
     id: 1,
+    name: "Single Payment",
     amount: "100.00",
     type: "income",
     date: createDate("2024-01-01"),
@@ -21,6 +22,7 @@ const data = [
   },
   {
     id: 2,
+    name: "Single Payment",
     amount: "100.00",
     type: "income",
     date: createDate("2024-01-01"),
@@ -32,6 +34,7 @@ const data = [
   },
   {
     id: 3,
+    name: "Weekly Income",
     amount: "255.00",
     type: "income",
     date: createDate("2024-01-01"),
@@ -112,17 +115,19 @@ console.log(JSON.stringify(result, null, 2));
 
 // instead of stringifying the result, let's log a line for each entry in a table format
 
-console.log("| #-index | amount | period | occurrence date | payment date |");
-console.log("|---|--------|--------|-------------|------|");
+console.log(
+  "| # | index | name | amount | period | occurrence date | payment date |"
+);
+console.log("|-|-----|--------|------:|:-----:|----------|----------|");
 let currentId = null;
 for (const entry of result) {
   if (currentId !== null && currentId !== entry.$.id) {
-    console.log("|---|--------|--------|-------------|------|");
+    console.log("| | | | | | |");
   }
   console.log(
-    `| ${entry.$.id}/${entry.index} | ${entry.$.amount} | ${
-      entry.$.config.period
-    } | ${
+    `| ${entry.$.id} | ${
+      entry.$.config.period === PERIOD.NONE ? " " : entry.index
+    } | ${entry.$.name} | ${entry.$.amount} | \`${entry.$.config.period}\` | ${
       entry.actualDate?.toString() ?? "-"
     } | ${entry.paymentDate.toString()} |`
   );
