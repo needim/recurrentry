@@ -4,6 +4,7 @@ import {
   type Period,
   type RecurrenceConfig,
   type SinglePayment,
+  type WeeklyPayment,
   type YearlyPayment,
 } from "./types";
 
@@ -26,6 +27,13 @@ export const isSinglePayment = createTypeGuard<SinglePayment>(PERIOD.NONE);
  * @returns {boolean} True if config is a monthly payment
  */
 export const isMonthlyPayment = createTypeGuard<MonthlyPayment>(PERIOD.MONTH);
+
+/**
+ * Type guard for weekly payment configurations
+ * @param {RecurrenceConfig} config - The payment configuration to check
+ * @returns {boolean} True if config is a weekly payment
+ */
+export const isWeeklyPayment = createTypeGuard<WeeklyPayment>(PERIOD.WEEK);
 
 /**
  * Type guard for yearly payment configurations

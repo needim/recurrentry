@@ -28,6 +28,10 @@ I built this library to help me manage my personal finances and automate recurri
   - Supports all combinations of:
     - Position: first, second, third, fourth, fifth, last, nextToLast
     - Type: day, weekday, weekend, or specific day (monday-sunday)
+- 📅 Weekly payment features:
+  - Specify days of the week (1-7, where 1 is Monday)
+  - Skip weeks with the "every" parameter (e.g., bi-weekly payments)
+  - Set specific payment days within each week
 
 ### Modifications
 
@@ -118,6 +122,23 @@ const data = [
         gracePeriod: 10,
       },
     } satisfies MonthlyPayment,
+  },
+  {
+    id: 5,
+    name: "Bi-weekly Salary",
+    amount: "2500.00",
+    type: "income",
+    date: createDate("2024-01-01"),
+    config: {
+      period: PERIOD.WEEK,
+      start: createDate("2024-01-01"),
+      interval: 4,
+      options: {
+        every: 2, // Every 2 weeks
+        each: [5], // Friday
+        workdaysOnly: true,
+      },
+    } satisfies WeeklyPayment,
   },
 ];
 

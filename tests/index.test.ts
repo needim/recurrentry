@@ -6,14 +6,14 @@ import {
   generator,
   isMonthlyPayment,
   isSinglePayment,
-  // isWeeklyPayment,
+  isWeeklyPayment,
   isYearlyPayment,
   paymentDate,
 } from "../lib";
 
 const allowedExports = {
   isSinglePayment,
-  // isWeeklyPayment,
+  isWeeklyPayment,
   isMonthlyPayment,
   isYearlyPayment,
   addByPeriod,

@@ -142,6 +142,56 @@ export function generator<T extends BaseEntry>({
     for (let i = 0; i < maxInterval; i++) {
       const baseDate = addByPeriod(start, i * every, period);
 
+      // Special handling for weekly period when no 'each' is specified
+      if (period === "week" && (!each || each.length === 0)) {
+        // For simple weekly cycles, calculate the date by adding weeks
+        const cycleDate = addByPeriod(start, i * every * 7, "none");
+
+        // Skip if occurrence date is invalid or out of range
+        if (!isInRange(cycleDate)) continue;
+
+        const nextDate = paymentDate(
+          cycleDate,
+          gracePeriod,
+          holidays,
+          weekendDays,
+          workdaysOnly
+        );
+
+        index++;
+        const newEntry = {
+          ...entry,
+          ...(applyToRestData || {}),
+        };
+
+        result.push({
+          $: newEntry,
+          index,
+          actualDate: cycleDate,
+          paymentDate: nextDate,
+        });
+
+        const lastEntry = result[result.length - 1];
+        const {
+          shouldDelete,
+          deleteFuture,
+          applyToRestData: modData,
+        } = applyModifications(entry, index, modifications, lastEntry);
+        deleteRest = deleteFuture;
+
+        if (shouldDelete) {
+          result.pop();
+          if (deleteFuture) break;
+          continue;
+        }
+
+        if (modData) {
+          applyToRestData = modData;
+        }
+
+        continue;
+      }
+
       // Handle 'each' option for different period types
       if (each?.length) {
         const occurrenceDates: Temporal.PlainDate[] = [];
@@ -150,6 +200,31 @@ export function generator<T extends BaseEntry>({
           let targetDate = baseDate;
 
           switch (period) {
+            case "week": {
+              // For weekly payments, each represents days of the week (1-7)
+              // Calculate the target day within the current week
+              if (target < 1 || target > 7) {
+                // Skip invalid day of week
+                continue;
+              }
+
+              // Calculate the start of the week (Monday as day 1)
+              // First, get to the first Monday of the current period
+              const startOfWeek = baseDate.with({
+                day: baseDate.day - baseDate.dayOfWeek + 1,
+              });
+
+              // Add the offset for this specific period ('every' weeks)
+              const weekOffset = i * every * 7;
+              const periodStart = start.add({ days: weekOffset });
+              const periodStartOfWeek = periodStart.with({
+                day: periodStart.day - periodStart.dayOfWeek + 1,
+              });
+
+              // Add days to get to the target day within this period
+              targetDate = periodStartOfWeek.add({ days: target - 1 });
+              break;
+            }
             case "month": {
               // Adjust to the target day within the current month
               targetDate = targetDate.with({ day: target });

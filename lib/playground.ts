@@ -2,6 +2,7 @@ import {
   type MonthlyPayment,
   PERIOD,
   type SinglePayment,
+  type WeeklyPayment,
   createDate,
   generator,
 } from ".";
@@ -28,6 +29,21 @@ const data = [
       start: createDate("2024-01-01"),
       interval: 1,
     } satisfies SinglePayment,
+  },
+  {
+    id: 3,
+    amount: "255.00",
+    type: "income",
+    date: createDate("2024-01-01"),
+    config: {
+      period: PERIOD.WEEK,
+      start: createDate("2024-01-01"),
+      interval: 5,
+      options: {
+        every: 1,
+        workdaysOnly: true,
+      },
+    } satisfies WeeklyPayment,
   },
   {
     id: 4,
