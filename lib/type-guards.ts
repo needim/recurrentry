@@ -1,18 +1,18 @@
 import {
-  type MonthlyPayment,
-  PERIOD,
-  type Period,
-  type RecurrenceConfig,
-  type SinglePayment,
-  type WeeklyPayment,
-  type YearlyPayment,
+	type MonthlyPayment,
+	PERIOD,
+	type Period,
+	type RecurrenceConfig,
+	type SinglePayment,
+	type WeeklyPayment,
+	type YearlyPayment,
 } from "./types";
 
 // Type guard utility function
 const createTypeGuard =
-  <T extends RecurrenceConfig>(period: Period) =>
-  (payment: RecurrenceConfig): payment is T =>
-    payment.period === period;
+	<T extends RecurrenceConfig>(period: Period) =>
+	(payment: RecurrenceConfig): payment is T =>
+		payment.period === period;
 
 /**
  * Type guard for single payment configurations

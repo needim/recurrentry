@@ -31,10 +31,7 @@
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
-	"files": [
-		"dist",
-		"lib"
-	],
+	"files": ["dist", "lib"],
 	"scripts": {
 		"dev": "tsx watch lib/playground.ts",
 		"build": "tsc --noEmit && tsup lib/index.ts",

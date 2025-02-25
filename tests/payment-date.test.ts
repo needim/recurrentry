@@ -137,6 +137,11 @@ describe("paymentDate()", () => {
 			expect(result.toString()).toBe("2025-01-15");
 		});
 
+		it("should return the same date when workdaysOnly is true but no weekend days or holidays are defined", () => {
+			const result = paymentDate(createDate("2025-01-15"), 0, [], [], true);
+			expect(result.toString()).toBe("2025-01-15");
+		});
+
 		it("should throw on invalid date", () => {
 			expect(() => {
 				// @ts-expect-error Testing invalid input

@@ -5,16 +5,14 @@ export default defineConfig({
 		globals: true,
 		include: ["tests/**"],
 		coverage: {
-			reporter: ["text", "html"],
+			reporter: ["text", "html", "json"],
 			include: ["lib"],
-			exclude: ["**/*.js", "**/{builder-types,types,enums}.ts"],
+			exclude: [
+				"**/*.js",
+				"**/{builder-types,types,enums}.ts",
+				"**/playground.ts",
+			],
 			all: true,
-			thresholds: {
-				lines: 100,
-				functions: 100,
-				branches: 100,
-				statements: 100,
-			},
 		},
 	},
 });

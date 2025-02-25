@@ -2,5 +2,8 @@
 	"editor.defaultFormatter": "biomejs.biome",
 	"[sql]": {
 		"editor.defaultFormatter": "lea21st.vscode-sql-formatter"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome"
 	}
 }
