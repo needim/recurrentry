@@ -208,12 +208,6 @@ export function generator<T extends BaseEntry>({
                 continue;
               }
 
-              // Calculate the start of the week (Monday as day 1)
-              // First, get to the first Monday of the current period
-              const startOfWeek = baseDate.with({
-                day: baseDate.day - baseDate.dayOfWeek + 1,
-              });
-
               // Add the offset for this specific period ('every' weeks)
               const weekOffset = i * every * 7;
               const periodStart = start.add({ days: weekOffset });
