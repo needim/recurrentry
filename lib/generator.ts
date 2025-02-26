@@ -81,16 +81,13 @@ export function generator<T extends BaseEntry>({
 				}
 				if (mod.type === "edit") {
 					lastEntry.$ = { ...lastEntry.$, ...mod.data };
-					if (mod.applyToFuture) {
-						return {
-							shouldDelete: false,
-							deleteFuture: false,
-							applyToRestData: mod.data,
-						};
-					}
+
+					// Check if we have a date modification
 					if (mod.data.date) {
 						lastEntry.actualDate = mod.data.date;
 						lastEntry.paymentDate = mod.data.date;
+
+						// If date is modified and applyToFuture is set, use dateOverride
 						if (mod.applyToFuture) {
 							return {
 								shouldDelete: false,
@@ -99,6 +96,14 @@ export function generator<T extends BaseEntry>({
 								dateOverride: mod.data.date,
 							};
 						}
+					}
+					// If no date modification but applyToFuture is set, use applyToRestData
+					else if (mod.applyToFuture) {
+						return {
+							shouldDelete: false,
+							deleteFuture: false,
+							applyToRestData: mod.data,
+						};
 					}
 				}
 			}
