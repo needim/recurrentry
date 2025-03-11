@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.2.0
+
+### Minor Changes
+
+- cb09f39: Better modification handling
+
 ## 0.1.0
 
 ### Minor Changes
