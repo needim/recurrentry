@@ -79,7 +79,7 @@ const result = generator({
 			itemId: 4,
 			index: 3,
 			payload: {
-				date: createDate("2024-01-15"),
+				date: createDate("2024-03-15"),
 				amount: "6087.22",
 			},
 		},
@@ -99,7 +99,7 @@ console.log("|-|-----|--------|------:|:-----:|----------|----------|");
 let currentId = null;
 for (const entry of result) {
 	if (currentId !== null && currentId !== entry.$.id) {
-		console.log("| | | | | | |");
+		console.log("| | | | | | | |");
 	}
 	console.log(
 		`| ${entry.$.id} | ${

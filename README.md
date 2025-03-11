@@ -33,11 +33,12 @@ I built this library to help me manage my personal finances and automate recurri
   - Skip weeks with the "every" parameter (e.g., bi-weekly payments)
   - Set specific payment days within each week
 
-### Modifications
+### Modifications for Recurring Payments
 
-- ✏️ Edit amount, date, or recurrence rules
+- ✏️ Edit amount, date for recurring payments
 - 🗑️ Delete single or future occurrences
 - 📝 Apply changes to future payments
+- Single payments are not modified, they are as is
 
 ## 🗓️ Date Handling
 
@@ -135,7 +136,7 @@ const result = generator({
       itemId: 4,
       index: 3,
       payload: {
-        date: createDate("2024-01-15"),
+        date: createDate("2024-03-15"),
         amount: "6087.22",
       },
     },
@@ -150,16 +151,16 @@ const result = generator({
 | #   | index | name           |  amount | period  | occurrence date | payment date |
 | --- | ----- | -------------- | ------: | :-----: | --------------- | ------------ |
 | 1   |       | Single Payment |  100.00 | `none`  | 2024-01-01      | 2024-01-01   |
-|     |       |                |         |         |                 |
+|     |       |                |         |         |                 |              |
 | 3   | 1     | Weekly Income  |  255.00 | `week`  | 2024-01-01      | 2024-01-02   |
 | 3   | 2     | Weekly Income  |  411.00 | `week`  | 2024-01-08      | 2024-01-08   |
 | 3   | 3     | Weekly Income  |  300.00 | `week`  | 2024-01-15      | 2024-01-15   |
 | 3   | 4     | Weekly Income  |  555.12 | `week`  | 2024-01-22      | 2024-01-22   |
 | 3   | 5     | Weekly Income  |  300.00 | `week`  | 2024-01-29      | 2024-01-29   |
-|     |       |                |         |         |                 |
+|     |       |                |         |         |                 |              |
 | 4   | 1     | Credit Card    | 1000.00 | `month` | 2024-01-01      | 2024-01-11   |
 | 4   | 2     | Credit Card    | 1000.00 | `month` | 2024-02-01      | 2024-02-12   |
-| 4   | 3     | Credit Card    | 6087.22 | `month` | 2024-01-15      | 2024-01-15   |
+| 4   | 3     | Credit Card    | 6087.22 | `month` | 2024-03-15      | 2024-03-15   |
 | 4   | 4     | Credit Card    | 1000.00 | `month` | 2024-04-01      | 2024-04-11   |
 | 4   | 5     | Credit Card    | 1000.00 | `month` | 2024-05-01      | 2024-05-13   |
 
