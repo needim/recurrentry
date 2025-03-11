@@ -1,6 +1,6 @@
 import { Temporal } from "temporal-polyfill";
 import { MAX_INTERVALS } from "./defaults";
-import type { BaseEntry, GeneratedEntry, Modification } from "./types";
+import type { BaseEntry, GeneratedEntry, Modification, Period } from "./types";
 import { addByPeriod, getOrdinalDate, paymentDate } from "./utils";
 
 /**
@@ -58,6 +58,38 @@ export function generator<T extends BaseEntry>({
 		return afterStart && beforeEnd;
 	};
 
+	type DateAdjustment = {
+		days?: number;
+		months?: number;
+		years?: number;
+	};
+
+	// Simplified helper function to calculate date adjustment
+	function calculateDateAdjustment(
+		originalDate: Temporal.PlainDate,
+		modifiedDate: Temporal.PlainDate,
+		period: Period,
+	): DateAdjustment {
+		switch (period) {
+			case "year":
+				return {
+					days: modifiedDate.day - originalDate.day,
+					months: modifiedDate.month - originalDate.month,
+				};
+			case "month":
+				return { days: modifiedDate.day - originalDate.day };
+			case "week": {
+				// For weekly entries, we need to calculate the day-of-week difference
+				const origDayOfWeek = originalDate.dayOfWeek;
+				const modDayOfWeek = modifiedDate.dayOfWeek;
+				const dayDiff = modDayOfWeek - origDayOfWeek;
+				return { days: dayDiff };
+			}
+			default:
+				return {}; // No adjustment for single payments
+		}
+	}
+
 	// Updated helper function to apply modifications to an occurrence entry
 	function applyModifications<T extends BaseEntry>(
 		entry: T,
@@ -68,7 +100,7 @@ export function generator<T extends BaseEntry>({
 		shouldDelete: boolean;
 		deleteFuture: boolean;
 		applyToRestPayload: Partial<T> | null;
-		dateOverride?: Temporal.PlainDate;
+		dateAdjustment?: DateAdjustment;
 	} {
 		for (const mod of modifications) {
 			if (mod.itemId === entry.id && mod.index === index) {
@@ -87,23 +119,31 @@ export function generator<T extends BaseEntry>({
 						...mod.payload,
 					};
 
-					// Check if we have a date modification
+					// Handle date modifications
 					if (mod.payload?.date) {
-						lastEntry.actualDate = mod.payload.date;
-						lastEntry.paymentDate = mod.payload.date;
+						const originalDate = lastEntry.actualDate;
+						const modifiedDate = mod.payload.date;
+						lastEntry.actualDate = modifiedDate;
+						lastEntry.paymentDate = modifiedDate;
 
-						// If date is modified and applyToFuture is set, use dateOverride
+						// Calculate date adjustment for future occurrences
 						if (mod.restPayload) {
+							const dateAdjustment = calculateDateAdjustment(
+								originalDate,
+								modifiedDate,
+								entry.config?.period || "none",
+							);
+
 							return {
 								shouldDelete: false,
 								deleteFuture: false,
 								applyToRestPayload: mod.restPayload,
-								dateOverride: mod.payload.date,
+								dateAdjustment,
 							};
 						}
 					}
-					// If no date modification but applyToFuture is set, use applyToRestPayload
-					else if (mod.restPayload) {
+
+					if (mod.restPayload) {
 						return {
 							shouldDelete: false,
 							deleteFuture: false,
@@ -151,6 +191,7 @@ export function generator<T extends BaseEntry>({
 		let applyToRestPayload: Partial<T> | null = null;
 		let deleteRest = false;
 		let index = 0;
+		let dateAdjustment: DateAdjustment | undefined;
 
 		const maxInterval = Math.min(interval, maxIntervals[period]);
 
@@ -161,7 +202,12 @@ export function generator<T extends BaseEntry>({
 			// Special handling for weekly period when no 'each' is specified
 			if (period === "week" && (!each || each.length === 0)) {
 				// For simple weekly cycles, calculate the date by adding weeks
-				const cycleDate = addByPeriod(start, i * every * 7, "none");
+				let cycleDate = addByPeriod(start, i * every * 7, "none");
+
+				// Apply date adjustment if exists
+				if (applyToRestPayload && dateAdjustment) {
+					cycleDate = cycleDate.add(dateAdjustment);
+				}
 
 				// Skip if occurrence date is invalid or out of range
 				if (!isInRange(cycleDate)) continue;
@@ -192,6 +238,7 @@ export function generator<T extends BaseEntry>({
 					shouldDelete,
 					deleteFuture,
 					applyToRestPayload: modPayload,
+					dateAdjustment: newDateAdjustment,
 				} = applyModifications(entry, index, modifications, lastEntry);
 				deleteRest = deleteFuture;
 
@@ -203,6 +250,10 @@ export function generator<T extends BaseEntry>({
 
 				if (modPayload) {
 					applyToRestPayload = modPayload;
+				}
+
+				if (newDateAdjustment) {
+					dateAdjustment = newDateAdjustment;
 				}
 
 				continue;
@@ -233,6 +284,11 @@ export function generator<T extends BaseEntry>({
 
 							// Add days to get to the target day within this period
 							targetDate = periodStartOfWeek.add({ days: target - 1 });
+
+							// Apply date adjustment if exists
+							if (applyToRestPayload && dateAdjustment) {
+								targetDate = targetDate.add(dateAdjustment);
+							}
 							break;
 						}
 						case "month": {
@@ -291,6 +347,7 @@ export function generator<T extends BaseEntry>({
 						shouldDelete,
 						deleteFuture,
 						applyToRestPayload: modPayload,
+						dateAdjustment: newDateAdjustment,
 					} = applyModifications(entry, index, modifications, lastEntry);
 					deleteRest = deleteFuture;
 					if (shouldDelete) {
@@ -301,10 +358,18 @@ export function generator<T extends BaseEntry>({
 					if (modPayload) {
 						applyToRestPayload = modPayload;
 					}
+					if (newDateAdjustment) {
+						dateAdjustment = newDateAdjustment;
+					}
 				}
 			} else {
 				// Handle single date per period
 				let _baseDate = baseDate;
+
+				// Apply date adjustment if exists
+				if (applyToRestPayload && dateAdjustment) {
+					_baseDate = _baseDate.add(dateAdjustment);
+				}
 
 				// Apply ordinal specification if provided
 				if (on) {
@@ -339,6 +404,7 @@ export function generator<T extends BaseEntry>({
 					shouldDelete,
 					deleteFuture,
 					applyToRestPayload: modPayload,
+					dateAdjustment: newDateAdjustment,
 				} = applyModifications(entry, index, modifications, lastEntry);
 				deleteRest = deleteFuture;
 
@@ -350,6 +416,9 @@ export function generator<T extends BaseEntry>({
 
 				if (modPayload) {
 					applyToRestPayload = modPayload;
+				}
+				if (newDateAdjustment) {
+					dateAdjustment = newDateAdjustment;
 				}
 			}
 
