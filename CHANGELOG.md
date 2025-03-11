@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.3.0
+
+### Minor Changes
+
+- b512c76: Better date modifications
+
 ## 0.2.0
 
 ### Minor Changes
