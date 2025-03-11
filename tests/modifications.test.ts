@@ -385,4 +385,121 @@ describe("Modifications", () => {
 			createDate("2024-01-22").toString(),
 		);
 	});
+
+	test("should handle date change for yearly recurring entries", () => {
+		const result = generator({
+			data: [
+				{
+					id: "1",
+					date: createDate("2024-01-15"),
+					amount: 100,
+					config: {
+						start: createDate("2024-01-15"),
+						period: "year",
+						interval: 4,
+						options: {
+							every: 1,
+							each: [1], // January
+						},
+					},
+				},
+			],
+			modifications: [
+				{
+					itemId: "1",
+					index: 2,
+					payload: { date: createDate("2025-03-20") },
+					restPayload: { date: createDate("2025-03-20") },
+				},
+			],
+		});
+
+		expect(result).toHaveLength(4);
+
+		expect(result[0].actualDate.toString()).toBe(
+			createDate("2024-01-15").toString(),
+		);
+		expect(result[0].paymentDate.toString()).toBe(
+			createDate("2024-01-15").toString(),
+		);
+
+		expect(result[1].actualDate.toString()).toBe(
+			createDate("2025-03-20").toString(),
+		);
+		expect(result[1].paymentDate.toString()).toBe(
+			createDate("2025-03-20").toString(),
+		);
+
+		expect(result[2].actualDate.toString()).toBe(
+			createDate("2026-03-20").toString(),
+		);
+		expect(result[2].paymentDate.toString()).toBe(
+			createDate("2026-03-20").toString(),
+		);
+
+		expect(result[3].actualDate.toString()).toBe(
+			createDate("2027-03-20").toString(),
+		);
+		expect(result[3].paymentDate.toString()).toBe(
+			createDate("2027-03-20").toString(),
+		);
+	});
+
+	test("should handle date change for yearly recurring entries without rest payload", () => {
+		const result = generator({
+			data: [
+				{
+					id: "1",
+					date: createDate("2024-01-15"),
+					amount: 100,
+					config: {
+						start: createDate("2024-01-15"),
+						period: "year",
+						interval: 4,
+						options: {
+							every: 1,
+							each: [1], // January
+						},
+					},
+				},
+			],
+			modifications: [
+				{
+					itemId: "1",
+					index: 2,
+					payload: { date: createDate("2025-03-20") },
+				},
+			],
+		});
+
+		expect(result).toHaveLength(4);
+
+		expect(result[0].actualDate.toString()).toBe(
+			createDate("2024-01-15").toString(),
+		);
+		expect(result[0].paymentDate.toString()).toBe(
+			createDate("2024-01-15").toString(),
+		);
+
+		expect(result[1].actualDate.toString()).toBe(
+			createDate("2025-03-20").toString(),
+		);
+		expect(result[1].paymentDate.toString()).toBe(
+			createDate("2025-03-20").toString(),
+		);
+
+		expect(result[2].actualDate.toString()).toBe(
+			createDate("2026-01-15").toString(),
+		);
+		expect(result[2].paymentDate.toString()).toBe(
+			createDate("2026-01-15").toString(),
+		);
+
+		expect(result[3].actualDate.toString()).toBe(
+			createDate("2027-01-15").toString(),
+		);
+		expect(result[3].paymentDate.toString()).toBe(
+			createDate("2027-01-15").toString(),
+		);
+	});
 });

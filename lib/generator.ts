@@ -71,15 +71,21 @@ export function generator<T extends BaseEntry>({
 		period: Period,
 	): DateAdjustment {
 		switch (period) {
-			case "year":
+			case "year": {
+				// For yearly entries, we need to:
+				// 1. Calculate the relative position within the year (month and day)
+				// 2. Ignore the year difference as it's handled by the base interval
 				return {
 					days: modifiedDate.day - originalDate.day,
 					months: modifiedDate.month - originalDate.month,
 				};
-			case "month":
+			}
+			case "month": {
+				// For monthly entries, only adjust the day position
 				return { days: modifiedDate.day - originalDate.day };
+			}
 			case "week": {
-				// For weekly entries, we need to calculate the day-of-week difference
+				// For weekly entries, calculate the day-of-week difference
 				const origDayOfWeek = originalDate.dayOfWeek;
 				const modDayOfWeek = modifiedDate.dayOfWeek;
 				const dayDiff = modDayOfWeek - origDayOfWeek;
@@ -299,6 +305,21 @@ export function generator<T extends BaseEntry>({
 						case "year": {
 							// Adjust to the target month within the current year
 							targetDate = targetDate.with({ month: target });
+
+							// Apply date adjustment if exists
+							if (applyToRestPayload && dateAdjustment) {
+								// For yearly entries, we need to maintain the modified month and day
+								if (dateAdjustment.months !== undefined) {
+									targetDate = targetDate.with({
+										month: target + dateAdjustment.months,
+									});
+								}
+								if (dateAdjustment.days !== undefined) {
+									targetDate = targetDate.with({
+										day: targetDate.day + dateAdjustment.days,
+									});
+								}
+							}
 
 							// Apply ordinal specification for yearly payments if provided
 							if (on && targetDate) {
