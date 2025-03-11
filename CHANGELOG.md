@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.3.1
+
+### Patch Changes
+
+- 9172c9e: fix date change handling for yearly recurring entries
+
 ## 0.3.0
 
 ### Minor Changes
