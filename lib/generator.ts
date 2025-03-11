@@ -67,48 +67,58 @@ export function generator<T extends BaseEntry>({
 	): {
 		shouldDelete: boolean;
 		deleteFuture: boolean;
-		applyToRestData: Partial<T> | null;
+		applyToRestPayload: Partial<T> | null;
 		dateOverride?: Temporal.PlainDate;
 	} {
 		for (const mod of modifications) {
 			if (mod.itemId === entry.id && mod.index === index) {
-				if (mod.type === "delete") {
+				if (mod.payload.deleted) {
 					return {
 						shouldDelete: true,
-						deleteFuture: !!mod.applyToFuture,
-						applyToRestData: null,
+						deleteFuture: !!mod.restPayload?.deleted,
+						applyToRestPayload: null,
 					};
 				}
-				if (mod.type === "edit") {
-					lastEntry.$ = { ...lastEntry.$, ...mod.data };
+
+				if (mod.payload || mod.restPayload) {
+					lastEntry.$ = {
+						...lastEntry.$,
+						...mod.restPayload,
+						...mod.payload,
+					};
 
 					// Check if we have a date modification
-					if (mod.data.date) {
-						lastEntry.actualDate = mod.data.date;
-						lastEntry.paymentDate = mod.data.date;
+					if (mod.payload?.date) {
+						lastEntry.actualDate = mod.payload.date;
+						lastEntry.paymentDate = mod.payload.date;
 
 						// If date is modified and applyToFuture is set, use dateOverride
-						if (mod.applyToFuture) {
+						if (mod.restPayload) {
 							return {
 								shouldDelete: false,
 								deleteFuture: false,
-								applyToRestData: null,
-								dateOverride: mod.data.date,
+								applyToRestPayload: mod.restPayload,
+								dateOverride: mod.payload.date,
 							};
 						}
 					}
-					// If no date modification but applyToFuture is set, use applyToRestData
-					else if (mod.applyToFuture) {
+					// If no date modification but applyToFuture is set, use applyToRestPayload
+					else if (mod.restPayload) {
 						return {
 							shouldDelete: false,
 							deleteFuture: false,
-							applyToRestData: mod.data,
+							applyToRestPayload: mod.restPayload,
 						};
 					}
 				}
 			}
 		}
-		return { shouldDelete: false, deleteFuture: false, applyToRestData: null };
+
+		return {
+			shouldDelete: false,
+			deleteFuture: false,
+			applyToRestPayload: null,
+		};
 	}
 
 	for (const entry of data) {
@@ -117,6 +127,7 @@ export function generator<T extends BaseEntry>({
 			// Skip if payment date is out of range
 			if (!isInRange(entry.date)) continue;
 
+			// For single payments, we don't need to apply modifications, they are as is
 			const newEntry = { ...entry };
 			result.push({
 				$: newEntry,
@@ -137,7 +148,7 @@ export function generator<T extends BaseEntry>({
 			on,
 		} = options;
 
-		let applyToRestData: Partial<T> | null = null;
+		let applyToRestPayload: Partial<T> | null = null;
 		let deleteRest = false;
 		let index = 0;
 
@@ -166,7 +177,7 @@ export function generator<T extends BaseEntry>({
 				index++;
 				const newEntry = {
 					...entry,
-					...(applyToRestData || {}),
+					...(applyToRestPayload || {}),
 				};
 
 				result.push({
@@ -180,7 +191,7 @@ export function generator<T extends BaseEntry>({
 				const {
 					shouldDelete,
 					deleteFuture,
-					applyToRestData: modData,
+					applyToRestPayload: modPayload,
 				} = applyModifications(entry, index, modifications, lastEntry);
 				deleteRest = deleteFuture;
 
@@ -190,8 +201,8 @@ export function generator<T extends BaseEntry>({
 					continue;
 				}
 
-				if (modData) {
-					applyToRestData = modData;
+				if (modPayload) {
+					applyToRestPayload = modPayload;
 				}
 
 				continue;
@@ -266,7 +277,7 @@ export function generator<T extends BaseEntry>({
 					index++;
 					const newEntry = {
 						...entry,
-						...(applyToRestData || {}),
+						...(applyToRestPayload || {}),
 					};
 
 					result.push({
@@ -279,7 +290,7 @@ export function generator<T extends BaseEntry>({
 					const {
 						shouldDelete,
 						deleteFuture,
-						applyToRestData: modData,
+						applyToRestPayload: modPayload,
 					} = applyModifications(entry, index, modifications, lastEntry);
 					deleteRest = deleteFuture;
 					if (shouldDelete) {
@@ -287,8 +298,8 @@ export function generator<T extends BaseEntry>({
 						if (deleteFuture) break;
 						continue;
 					}
-					if (modData) {
-						applyToRestData = modData;
+					if (modPayload) {
+						applyToRestPayload = modPayload;
 					}
 				}
 			} else {
@@ -314,7 +325,7 @@ export function generator<T extends BaseEntry>({
 				index++;
 				const newEntry = {
 					...entry,
-					...(applyToRestData || {}),
+					...(applyToRestPayload || {}),
 				};
 
 				result.push({
@@ -327,7 +338,7 @@ export function generator<T extends BaseEntry>({
 				const {
 					shouldDelete,
 					deleteFuture,
-					applyToRestData: modData,
+					applyToRestPayload: modPayload,
 				} = applyModifications(entry, index, modifications, lastEntry);
 				deleteRest = deleteFuture;
 
@@ -337,8 +348,8 @@ export function generator<T extends BaseEntry>({
 					continue; // Added to immediately skip deleted occurrence
 				}
 
-				if (modData) {
-					applyToRestData = modData;
+				if (modPayload) {
+					applyToRestPayload = modPayload;
 				}
 			}
 

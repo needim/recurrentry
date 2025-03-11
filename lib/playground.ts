@@ -21,18 +21,6 @@ const data = [
 		} satisfies SinglePayment,
 	},
 	{
-		id: 2,
-		name: "Single Payment",
-		amount: "100.00",
-		type: "income",
-		date: createDate("2024-01-01"),
-		config: {
-			period: PERIOD.NONE,
-			start: createDate("2024-01-01"),
-			interval: 1,
-		} satisfies SinglePayment,
-	},
-	{
 		id: 3,
 		name: "Weekly Income",
 		amount: "255.00",
@@ -71,39 +59,28 @@ const result = generator({
 	data,
 	modifications: [
 		{
-			itemId: 1,
-			index: 1,
-			type: "edit",
-			data: {
-				amount: "300.00",
-			},
-		},
-		{
 			itemId: 3,
 			index: 2,
-			type: "edit",
-			applyToFuture: true,
-			data: {
+			payload: {
+				amount: "411.00",
+			},
+			restPayload: {
 				amount: "300.00",
 			},
 		},
 		{
 			itemId: 3,
 			index: 4,
-			type: "edit",
-			applyToFuture: true,
-			data: {
+			payload: {
 				amount: "555.12",
 			},
 		},
 		{
 			itemId: 4,
 			index: 3,
-			type: "edit",
-			applyToFuture: true,
-			data: {
+			payload: {
 				date: createDate("2024-01-15"),
-				amount: "555.12",
+				amount: "6087.22",
 			},
 		},
 	],
@@ -111,7 +88,7 @@ const result = generator({
 	holidays: [createDate("2024-01-01")], // New Year's Day
 });
 
-console.log(JSON.stringify(result, null, 2));
+// console.log(JSON.stringify(result, null, 2));
 
 // instead of stringifying the result, let's log a line for each entry in a table format
 

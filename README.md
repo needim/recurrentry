@@ -65,6 +65,7 @@ yarn add recurrentry
 const data = [
   {
     id: 1,
+    name: "Single Payment",
     amount: "100.00",
     type: "income",
     date: createDate("2024-01-01"),
@@ -72,27 +73,11 @@ const data = [
       period: PERIOD.NONE,
       start: createDate("2024-01-01"),
       interval: 1,
-      options: {
-        workdaysOnly: false,
-      },
-    } satisfies SinglePayment,
-  },
-  {
-    id: 2,
-    amount: "100.00",
-    type: "income",
-    date: createDate("2024-01-01"),
-    config: {
-      period: PERIOD.NONE,
-      start: createDate("2024-01-01"),
-      interval: 1,
-      options: {
-        workdaysOnly: true,
-      },
     } satisfies SinglePayment,
   },
   {
     id: 3,
+    name: "Weekly Income",
     amount: "255.00",
     type: "income",
     date: createDate("2024-01-01"),
@@ -115,30 +100,13 @@ const data = [
     config: {
       period: PERIOD.MONTH,
       start: createDate("2024-01-01"),
-      interval: 3,
+      interval: 5,
       options: {
         every: 1,
         workdaysOnly: true,
         gracePeriod: 10,
       },
     } satisfies MonthlyPayment,
-  },
-  {
-    id: 5,
-    name: "Bi-weekly Salary",
-    amount: "2500.00",
-    type: "income",
-    date: createDate("2024-01-01"),
-    config: {
-      period: PERIOD.WEEK,
-      start: createDate("2024-01-01"),
-      interval: 4,
-      options: {
-        every: 2, // Every 2 weeks
-        each: [5], // Friday
-        workdaysOnly: true,
-      },
-    } satisfies WeeklyPayment,
   },
 ];
 
@@ -149,19 +117,26 @@ const result = generator({
     {
       itemId: 3,
       index: 2,
-      type: "edit",
-      applyToFuture: true,
-      data: {
+      payload: {
+        amount: "411.00",
+      },
+      restPayload: {
         amount: "300.00",
       },
     },
     {
       itemId: 3,
       index: 4,
-      type: "edit",
-      applyToFuture: true,
-      data: {
+      payload: {
         amount: "555.12",
+      },
+    },
+    {
+      itemId: 4,
+      index: 3,
+      payload: {
+        date: createDate("2024-01-15"),
+        amount: "6087.22",
       },
     },
   ],
@@ -176,19 +151,17 @@ const result = generator({
 | --- | ----- | -------------- | ------: | :-----: | --------------- | ------------ |
 | 1   |       | Single Payment |  100.00 | `none`  | 2024-01-01      | 2024-01-01   |
 |     |       |                |         |         |                 |
-| 2   |       | Single Payment |  100.00 | `none`  | 2024-01-01      | 2024-01-01   |
-|     |       |                |         |         |                 |
 | 3   | 1     | Weekly Income  |  255.00 | `week`  | 2024-01-01      | 2024-01-02   |
-| 3   | 2     | Weekly Income  |  300.00 | `week`  | 2024-01-08      | 2024-01-08   |
+| 3   | 2     | Weekly Income  |  411.00 | `week`  | 2024-01-08      | 2024-01-08   |
 | 3   | 3     | Weekly Income  |  300.00 | `week`  | 2024-01-15      | 2024-01-15   |
 | 3   | 4     | Weekly Income  |  555.12 | `week`  | 2024-01-22      | 2024-01-22   |
-| 3   | 5     | Weekly Income  |  555.12 | `week`  | 2024-01-29      | 2024-01-29   |
+| 3   | 5     | Weekly Income  |  300.00 | `week`  | 2024-01-29      | 2024-01-29   |
 |     |       |                |         |         |                 |
 | 4   | 1     | Credit Card    | 1000.00 | `month` | 2024-01-01      | 2024-01-11   |
 | 4   | 2     | Credit Card    | 1000.00 | `month` | 2024-02-01      | 2024-02-12   |
-| 4   | 3     | Credit Card    |  555.12 | `month` | 2024-03-01      | 2024-03-11   |
-| 4   | 4     | Credit Card    |  555.12 | `month` | 2024-04-01      | 2024-04-11   |
-| 4   | 5     | Credit Card    |  555.12 | `month` | 2024-05-01      | 2024-05-13   |
+| 4   | 3     | Credit Card    | 6087.22 | `month` | 2024-01-15      | 2024-01-15   |
+| 4   | 4     | Credit Card    | 1000.00 | `month` | 2024-04-01      | 2024-04-11   |
+| 4   | 5     | Credit Card    | 1000.00 | `month` | 2024-05-01      | 2024-05-13   |
 
 ## 🤝 Contributing
 

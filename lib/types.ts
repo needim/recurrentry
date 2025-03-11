@@ -136,20 +136,12 @@ export type RecurrenceConfig =
 	| MonthlyPayment
 	| YearlyPayment;
 
-export interface Delete {
-	type: "delete";
-}
-
-export interface Edit<Data extends BaseEntry> {
-	type: "edit";
-	data: Partial<Data>;
-}
-
 export type Modification<Data extends BaseEntry> = {
 	itemId: number | string;
 	index: number;
-	applyToFuture?: boolean;
-} & (Delete | Edit<Data>);
+	payload: Partial<Data> & { deleted?: boolean };
+	restPayload?: Partial<Data> & { deleted?: boolean };
+};
 
 export interface BaseEntry {
 	id: string | number;
