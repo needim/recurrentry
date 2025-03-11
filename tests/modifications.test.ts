@@ -19,11 +19,10 @@ describe("Modifications", () => {
 			],
 			modifications: [
 				{
-					type: "edit",
 					itemId: "1",
 					index: 2,
-					data: { amount: 200 },
-					applyToFuture: true,
+					payload: { amount: 200 },
+					restPayload: { amount: 200 },
 				},
 			],
 		});
@@ -52,9 +51,9 @@ describe("Modifications", () => {
 			],
 			modifications: [
 				{
-					type: "delete",
 					itemId: "1",
 					index: 2,
+					payload: { deleted: true },
 				},
 			],
 		});
@@ -82,10 +81,10 @@ describe("Modifications", () => {
 			],
 			modifications: [
 				{
-					type: "delete",
 					itemId: "1",
 					index: 2,
-					applyToFuture: true,
+					payload: { deleted: true },
+					restPayload: { deleted: true },
 				},
 			],
 		});
@@ -111,10 +110,9 @@ describe("Modifications", () => {
 			],
 			modifications: [
 				{
-					type: "edit",
 					itemId: "wrong-id",
 					index: 2,
-					data: { amount: 200 },
+					payload: { amount: 200 },
 				},
 			],
 		});
@@ -142,10 +140,9 @@ describe("Modifications", () => {
 			],
 			modifications: [
 				{
-					type: "edit",
 					itemId: "1",
 					index: 1,
-					data: {
+					payload: {
 						amount: 200,
 						description: "modified",
 						meta: { key: "new value" },

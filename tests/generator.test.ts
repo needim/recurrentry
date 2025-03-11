@@ -20,10 +20,10 @@ describe("Generator deletion modifications", () => {
 
 		const modifications = [
 			{
-				type: "delete" as const,
 				itemId: "1",
 				index: 2,
-				applyToFuture: true,
+				payload: { deleted: true },
+				restPayload: { deleted: true },
 			},
 		];
 
@@ -233,11 +233,10 @@ describe("Generator modification cases", () => {
 
 		const modifications = [
 			{
-				type: "edit" as const,
 				itemId: "1",
 				index: 2,
-				data: { amount: 200 },
-				applyToFuture: true,
+				payload: { amount: 200 },
+				restPayload: { amount: 200 },
 			},
 		];
 
@@ -279,16 +278,15 @@ describe("Generator modification cases", () => {
 
 		const modifications = [
 			{
-				type: "delete" as const,
 				itemId: "1",
 				index: 2,
-				applyToFuture: false, // This will trigger the continue case
+				payload: { deleted: true },
 			},
 			{
-				type: "delete" as const,
 				itemId: "1",
 				index: 4,
-				applyToFuture: true, // This will trigger the break case
+				payload: { deleted: true },
+				restPayload: { deleted: true },
 			},
 		];
 
