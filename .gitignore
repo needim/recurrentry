@@ -60,3 +60,5 @@ node_modules/
 
 docs
 dist/
+cover.html
+cover.out
