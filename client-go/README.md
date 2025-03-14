@@ -1,4 +1,4 @@
-# RecurrenTry - Go SDK
+# Recurrentry - Go SDK
 
 A Go library for generating recurring entries based on customizable configurations. This is a Go implementation of the original TypeScript/JavaScript library.
 

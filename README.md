@@ -62,6 +62,18 @@ npm install recurrentry
 yarn add recurrentry
 ```
 
+### Go Client
+
+For Go projects, you can use the official Go client:
+
+```bash
+go get github.com/needim/recurrentry/client-go
+```
+
+Thanks to [@9ssi7](https://github.com/9ssi7) for the contribution!
+
+For more information, please refer to the [Go Client README](client-go/README.md).
+
 ## 🎯 Quick Example
 
 ```typescript
