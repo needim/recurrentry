@@ -1,9 +1,8 @@
-<h1>
-🌀 recurrentry
-<div style="display: flex; gap: 10px;">
- <img src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/needim/ccae711fb07ccaed86d73f03c1922557/raw/badge.json" />
-</div>
-</h1>
+# 🌀 recurrentry
+
+| TypeScript | Go |
+| ---------- | -- |
+| ![TypeScript Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/needim/ccae711fb07ccaed86d73f03c1922557/raw/badge.json) | [![Go Coverage](https://codecov.io/gh/needim/recurrentry/graph/badge.svg?token=5lGYbwgB9f)](https://codecov.io/gh/needim/recurrentry) |
 
 > [!CAUTION]
 > This is a work in progress and the API is not stable yet. Don't use it in production.
