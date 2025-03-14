@@ -31,11 +31,13 @@ jobs:
         run: go mod download
 
       - name: Run tests
-        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+        run: |
+          go test -v -race $(go list ./... | grep -v /examples/) -coverprofile=coverage.txt -covermode=atomic
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           file: ./client-go/coverage.txt
           flags: go
-          name: go-coverage 
+          name: go-coverage
+          token: ${{ secrets.CODECOV_TOKEN }} 
