@@ -192,7 +192,7 @@ export function generator<T extends BaseEntry>({
 			gracePeriod = 0,
 			each,
 			on,
-		} = options;
+		} = options || {};
 
 		let applyToRestPayload: Partial<T> | null = null;
 		let deleteRest = false;

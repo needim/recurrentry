@@ -1,0 +1,5 @@
+---
+"recurrentry": minor
+---
+
+Type fix
