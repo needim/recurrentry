@@ -220,7 +220,9 @@ func Generator(options GeneratorOptions) ([]GeneratedEntry, error) {
 
 		// Calculate max interval to generate
 		maxInterval := interval
-		if maxIntervalForPeriod, ok := maxIntervals[period]; ok && maxIntervalForPeriod < interval {
+		if interval == 0 {
+			maxInterval = maxIntervals[period]
+		} else if maxIntervalForPeriod, ok := maxIntervals[period]; ok && maxIntervalForPeriod < interval {
 			maxInterval = maxIntervalForPeriod
 		}
 

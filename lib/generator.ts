@@ -199,7 +199,10 @@ export function generator<T extends BaseEntry>({
 		let index = 0;
 		let dateAdjustment: DateAdjustment | undefined;
 
-		const maxInterval = Math.min(interval, maxIntervals[period]);
+		const maxInterval =
+			interval === 0
+				? maxIntervals[period]
+				: Math.min(interval, maxIntervals[period]);
 
 		// Generate occurrences
 		for (let i = 0; i < maxInterval; i++) {
