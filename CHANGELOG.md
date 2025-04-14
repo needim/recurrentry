@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.4.1
+
+### Patch Changes
+
+- 0e28f96: type fix
+
 ## 0.4.0
 
 ### Minor Changes
