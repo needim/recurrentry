@@ -1,0 +1,5 @@
+---
+"recurrentry": patch
+---
+
+type fix
