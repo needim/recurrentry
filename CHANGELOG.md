@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.5.0
+
+### Minor Changes
+
+- 05e20f7: fix: interval: 0 generation
+
 ## 0.4.1
 
 ### Patch Changes

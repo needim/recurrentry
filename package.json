@@ -1,6 +1,6 @@
 {
 	"name": "recurrentry",
-	"version": "0.4.1",
+	"version": "0.5.0",
 	"description": "A simple and easy-to-use library for recurring entries.",
 	"keywords": [],
 	"homepage": "https://github.com/needim/recurrentry",
