@@ -170,9 +170,6 @@ export function generator<T extends BaseEntry>({
 	for (const entry of data) {
 		// Handle single payments
 		if (!entry.config || entry.config.period === "none") {
-			// Skip if payment date is out of range
-			if (!isInRange(entry.date)) continue;
-
 			// For single payments, we don't need to apply modifications, they are as is
 			const newEntry = { ...entry };
 			result.push({
@@ -217,9 +214,6 @@ export function generator<T extends BaseEntry>({
 				if (applyToRestPayload && dateAdjustment) {
 					cycleDate = cycleDate.add(dateAdjustment);
 				}
-
-				// Skip if occurrence date is invalid or out of range
-				if (!isInRange(cycleDate)) continue;
 
 				const nextDate = paymentDate(
 					cycleDate,
@@ -351,9 +345,6 @@ export function generator<T extends BaseEntry>({
 						workdaysOnly,
 					);
 
-					// Skip if occurrence date is out of range
-					if (!isInRange(occurrenceDate)) continue;
-
 					index++;
 					const newEntry = {
 						...entry,
@@ -400,8 +391,8 @@ export function generator<T extends BaseEntry>({
 					_baseDate = getOrdinalDate(_baseDate, on, weekendDays);
 				}
 
-				// Skip if occurrence date is invalid or out of range
-				if (!_baseDate || !isInRange(_baseDate)) continue;
+				// Skip if occurrence date is invalid
+				if (!_baseDate) continue;
 
 				const fixedNextDate = paymentDate(
 					_baseDate,
@@ -453,5 +444,6 @@ export function generator<T extends BaseEntry>({
 		}
 	}
 
-	return result;
+	// Apply range filtering after all entries are generated
+	return range ? result.filter((entry) => isInRange(entry.actualDate)) : result;
 }
