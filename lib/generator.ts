@@ -3,6 +3,44 @@ import { MAX_INTERVALS } from "./defaults";
 import type { BaseEntry, GeneratedEntry, Modification, Period } from "./types";
 import { addByPeriod, getOrdinalDate, paymentDate } from "./utils";
 
+type DateAdjustment = {
+	days?: number;
+	months?: number;
+	years?: number;
+};
+
+// Simplified helper function to calculate date adjustment
+export function calculateDateAdjustment(
+	originalDate: Temporal.PlainDate,
+	modifiedDate: Temporal.PlainDate,
+	period: Period,
+): DateAdjustment {
+	switch (period) {
+		case "year": {
+			// For yearly entries, we need to:
+			// 1. Calculate the relative position within the year (month and day)
+			// 2. Ignore the year difference as it's handled by the base interval
+			return {
+				days: modifiedDate.day - originalDate.day,
+				months: modifiedDate.month - originalDate.month,
+			};
+		}
+		case "month": {
+			// For monthly entries, only adjust the day position
+			return { days: modifiedDate.day - originalDate.day };
+		}
+		case "week": {
+			// For weekly entries, calculate the day-of-week difference
+			const origDayOfWeek = originalDate.dayOfWeek;
+			const modDayOfWeek = modifiedDate.dayOfWeek;
+			const dayDiff = modDayOfWeek - origDayOfWeek;
+			return { days: dayDiff };
+		}
+		default:
+			return {}; // No adjustment for single payments
+	}
+}
+
 /**
  * Generates recurring entries based on the provided configuration and modifications.
  *
@@ -57,44 +95,6 @@ export function generator<T extends BaseEntry>({
 
 		return afterStart && beforeEnd;
 	};
-
-	type DateAdjustment = {
-		days?: number;
-		months?: number;
-		years?: number;
-	};
-
-	// Simplified helper function to calculate date adjustment
-	function calculateDateAdjustment(
-		originalDate: Temporal.PlainDate,
-		modifiedDate: Temporal.PlainDate,
-		period: Period,
-	): DateAdjustment {
-		switch (period) {
-			case "year": {
-				// For yearly entries, we need to:
-				// 1. Calculate the relative position within the year (month and day)
-				// 2. Ignore the year difference as it's handled by the base interval
-				return {
-					days: modifiedDate.day - originalDate.day,
-					months: modifiedDate.month - originalDate.month,
-				};
-			}
-			case "month": {
-				// For monthly entries, only adjust the day position
-				return { days: modifiedDate.day - originalDate.day };
-			}
-			case "week": {
-				// For weekly entries, calculate the day-of-week difference
-				const origDayOfWeek = originalDate.dayOfWeek;
-				const modDayOfWeek = modifiedDate.dayOfWeek;
-				const dayDiff = modDayOfWeek - origDayOfWeek;
-				return { days: dayDiff };
-			}
-			default:
-				return {}; // No adjustment for single payments
-		}
-	}
 
 	// Updated helper function to apply modifications to an occurrence entry
 	function applyModifications<T extends BaseEntry>(

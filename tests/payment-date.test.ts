@@ -1,3 +1,4 @@
+import { calculateDateAdjustment } from "../lib/generator";
 import { createDate, paymentDate } from "../lib/utils";
 
 describe("paymentDate()", () => {
@@ -16,6 +17,15 @@ describe("paymentDate()", () => {
 				false,
 			);
 			expect(result.toString()).toBe("2025-01-15");
+		});
+
+		it("calculateDateAdjustment should return empty object for single payment", () => {
+			const result = calculateDateAdjustment(
+				createDate("2025-01-15"),
+				createDate("2025-01-15"),
+				"none",
+			);
+			expect(result).toEqual({});
 		});
 
 		it("should add grace period correctly", () => {
