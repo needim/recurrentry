@@ -41,6 +41,19 @@ export function calculateDateAdjustment(
 	}
 }
 
+// Helper function to calculate the maximum number of intervals
+export function calculateMaxInterval(
+	interval: number,
+	period: Period,
+	maxIntervalsDefaults: typeof MAX_INTERVALS,
+): number {
+	if (period === "none") return 1; // Single payments have only one "interval"
+
+	return interval === 0
+		? maxIntervalsDefaults[period]
+		: Math.min(interval, maxIntervalsDefaults[period]);
+}
+
 /**
  * Generates recurring entries based on the provided configuration and modifications.
  *
@@ -196,10 +209,11 @@ export function generator<T extends BaseEntry>({
 		let index = 0;
 		let dateAdjustment: DateAdjustment | undefined;
 
-		const maxInterval =
-			interval === 0
-				? maxIntervals[period]
-				: Math.min(interval, maxIntervals[period]);
+		const maxInterval = calculateMaxInterval(
+			interval || 0, // interval might be undefined, default to 0
+			period,
+			maxIntervals,
+		);
 
 		// Generate occurrences
 		for (let i = 0; i < maxInterval; i++) {
