@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.6.0
+
+### Minor Changes
+
+- 8e7157a: fix: incorrect indexes with range filter
+
 ## 0.5.0
 
 ### Minor Changes
