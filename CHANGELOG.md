@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.6.1
+
+### Patch Changes
+
+- 0d68e47: increase test coverage
+
 ## 0.6.0
 
 ### Minor Changes
