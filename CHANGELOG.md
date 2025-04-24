@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.7.0
+
+### Minor Changes
+
+- 508c995: fix: filter
+
 ## 0.6.1
 
 ### Patch Changes
