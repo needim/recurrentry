@@ -122,7 +122,7 @@ export function paymentDate(
 	gracePeriod = 0,
 	holidays: Temporal.PlainDate[] = [],
 	weekendDays: number[] = [],
-	workdaysOnly = false,
+	workdaysOnly?: "previous" | "next",
 ): Temporal.PlainDate {
 	if (!isValidDate(current)) {
 		throw new Error("Invalid current date provided");
@@ -143,7 +143,7 @@ export function paymentDate(
 			weekendDays.includes(plainDate.dayOfWeek) ||
 			holidays.some((holiday) => holiday.equals(plainDate))
 		) {
-			plainDate = plainDate.add({ days: 1 });
+			plainDate = plainDate.add({ days: workdaysOnly === "next" ? 1 : -1 });
 		}
 	}
 

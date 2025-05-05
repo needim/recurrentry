@@ -1,8 +1,6 @@
 # 🌀 recurrentry
 
-| TypeScript | Go |
-| ---------- | -- |
-| ![TypeScript Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/needim/ccae711fb07ccaed86d73f03c1922557/raw/badge.json) | [![Go Coverage](https://codecov.io/gh/needim/recurrentry/graph/badge.svg?token=5lGYbwgB9f)](https://codecov.io/gh/needim/recurrentry) |
+![TypeScript Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/needim/ccae711fb07ccaed86d73f03c1922557/raw/badge.json)
 
 > [!CAUTION]
 > This is a work in progress and the API is not stable yet. Don't use it in production.
@@ -17,7 +15,7 @@ I built this library to help me manage my personal finances and automate recurri
 
 - ✨ Single and recurring payments (single, weekly, monthly, yearly)
 - 🔄 Support for payment modifications (edit, delete)
-- 💼 Business day adjustments (skip weekends/holidays)
+- 💼 Business day adjustments (weekends/holidays)
 - ⏰ Grace period support for payment due dates
 - 📆 Day-level precision using Temporal API
 - 🛡️ Type-safe configuration with TypeScript
@@ -40,7 +38,7 @@ I built this library to help me manage my personal finances and automate recurri
 - ✏️ Edit amount, date for recurring payments
 - 🗑️ Delete single or future occurrences
 - 📝 Apply changes to future payments
-- Single payments are not modified, they are as is
+- Single payments are not modified, they are as is (you need to modify them manually)
 
 ## 🗓️ Date Handling
 
@@ -48,7 +46,6 @@ The library operates with day-level precision using the Temporal API:
 
 - Uses `Temporal.PlainDate` for all date operations
 - Helper function `createDate()` provided for easy date creation
-- It's a peer dependency
 
 ## 📦 Installation
 
@@ -61,18 +58,6 @@ npm install recurrentry
 # or
 yarn add recurrentry
 ```
-
-### Go Client
-
-For Go projects, you can use the official Go client:
-
-```bash
-go get github.com/needim/recurrentry/client-go
-```
-
-Thanks to [@9ssi7](https://github.com/9ssi7) for the contribution!
-
-For more information, please refer to the [Go Client README](client-go/README.md).
 
 ## 🎯 Quick Example
 
@@ -102,7 +87,7 @@ const data = [
       interval: 5,
       options: {
         every: 1,
-        workdaysOnly: true,
+        workdaysOnly: "next",
       },
     } satisfies WeeklyPayment,
   },
@@ -118,7 +103,7 @@ const data = [
       interval: 5,
       options: {
         every: 1,
-        workdaysOnly: true,
+        workdaysOnly: "next",
         gracePeriod: 10,
       },
     } satisfies MonthlyPayment,

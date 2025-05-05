@@ -16,7 +16,7 @@ describe("Weekly payments", () => {
 					interval: 5,
 					options: {
 						every: 1,
-						workdaysOnly: false,
+						workdaysOnly: undefined,
 					},
 				},
 			},
@@ -49,7 +49,7 @@ describe("Weekly payments", () => {
 					options: {
 						every: 2, // Every 2 weeks
 						each: [1, 5], // Monday and Friday
-						workdaysOnly: false,
+						workdaysOnly: undefined,
 					},
 				},
 			},
@@ -91,7 +91,7 @@ describe("Weekly payments", () => {
 					interval: 3,
 					options: {
 						every: 1,
-						workdaysOnly: true,
+						workdaysOnly: "next" as const,
 					},
 				},
 			},
@@ -127,7 +127,7 @@ describe("Weekly payments", () => {
 					options: {
 						every: 1,
 						gracePeriod: 2, // 2 days grace period
-						workdaysOnly: false,
+						workdaysOnly: undefined,
 					},
 				},
 			},
@@ -161,7 +161,7 @@ describe("Weekly payments", () => {
 					options: {
 						every: 1,
 						gracePeriod: 3, // 3 days grace period
-						workdaysOnly: true, // Skip weekends and holidays
+						workdaysOnly: "next" as const, // Skip weekends and holidays
 					},
 				},
 			},

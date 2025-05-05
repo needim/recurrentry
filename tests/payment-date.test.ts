@@ -14,7 +14,7 @@ describe("paymentDate()", () => {
 				0,
 				[],
 				[6, 7],
-				false,
+				undefined,
 			);
 			expect(result.toString()).toBe("2025-01-15");
 		});
@@ -34,7 +34,7 @@ describe("paymentDate()", () => {
 				5,
 				[],
 				[6, 7],
-				false,
+				undefined,
 			);
 			expect(result.toString()).toBe("2025-01-20");
 		});
@@ -47,7 +47,7 @@ describe("paymentDate()", () => {
 				2,
 				[],
 				[6, 7],
-				false,
+				undefined,
 			);
 			expect(result.toString()).toBe("2025-02-01");
 		});
@@ -58,7 +58,7 @@ describe("paymentDate()", () => {
 				2,
 				[],
 				[6, 7],
-				false,
+				undefined,
 			);
 			expect(result.toString()).toBe("2026-01-01");
 		});
@@ -66,24 +66,47 @@ describe("paymentDate()", () => {
 
 	describe("workdays only handling", () => {
 		it("should move Saturday to next Monday", () => {
-			const result = paymentDate(createDate("2025-01-25"), 0, [], [6, 7], true);
+			const result = paymentDate(
+				createDate("2025-01-25"),
+				0,
+				[],
+				[6, 7],
+				"next",
+			);
 			expect(result.toString()).toBe("2025-01-27"); // Monday
 		});
 
 		it("should move Sunday to next Monday", () => {
-			const result = paymentDate(createDate("2025-01-26"), 0, [], [6, 7], true);
+			const result = paymentDate(
+				createDate("2025-01-26"),
+				0,
+				[],
+				[6, 7],
+				"next",
+			);
 			expect(result.toString()).toBe("2025-01-27"); // Monday
+		});
+
+		it("should pick previous business day if workdaysOnly is previous", () => {
+			const result = paymentDate(
+				createDate("2025-05-31"),
+				0,
+				[],
+				[6, 7],
+				"previous",
+			);
+			expect(result.toString()).toBe("2025-05-30");
 		});
 	});
 
 	describe("holiday handling", () => {
-		it("should skip holidays when workdaysOnly is true", () => {
+		it("should skip holidays when workdaysOnly is next", () => {
 			const result = paymentDate(
 				createDate("2025-01-01"),
 				0,
 				holidays,
 				[6, 7],
-				true,
+				"next",
 			);
 			expect(result.toString()).toBe("2025-01-02");
 		});
@@ -91,7 +114,13 @@ describe("paymentDate()", () => {
 
 	describe("combined scenarios", () => {
 		it("should handle grace period ending on weekend", () => {
-			const result = paymentDate(createDate("2025-01-07"), 4, [], [6, 7], true); // Grace period ends on Saturday
+			const result = paymentDate(
+				createDate("2025-01-07"),
+				4,
+				[],
+				[6, 7],
+				"next",
+			); // Grace period ends on Saturday
 			expect(result.toString()).toBe("2025-01-13"); // Next Monday
 		});
 
@@ -101,7 +130,7 @@ describe("paymentDate()", () => {
 				5,
 				holidays,
 				[6, 7],
-				true,
+				"next",
 			); // Grace period ends on Christmas
 			expect(result.toString()).toBe("2025-12-26");
 		});
@@ -118,7 +147,7 @@ describe("paymentDate()", () => {
 				1,
 				christmasHolidays,
 				[6, 7],
-				true,
+				"next",
 			);
 			expect(result.toString()).toBe("2025-12-29"); // Next available Monday
 		});
@@ -131,7 +160,7 @@ describe("paymentDate()", () => {
 				-5,
 				[],
 				[6, 7],
-				false,
+				"next",
 			);
 			expect(result.toString()).toBe("2025-01-15"); // Should not modify date for negative grace periods
 		});
@@ -142,27 +171,27 @@ describe("paymentDate()", () => {
 				0,
 				undefined,
 				[6, 7],
-				true,
+				"next",
 			);
 			expect(result.toString()).toBe("2025-01-15");
 		});
 
-		it("should return the same date when workdaysOnly is true but no weekend days or holidays are defined", () => {
-			const result = paymentDate(createDate("2025-01-15"), 0, [], [], true);
+		it("should return the same date when workdaysOnly is next but no weekend days or holidays are defined", () => {
+			const result = paymentDate(createDate("2025-01-15"), 0, [], [], "next");
 			expect(result.toString()).toBe("2025-01-15");
 		});
 
 		it("should throw on invalid date", () => {
 			expect(() => {
 				// @ts-expect-error Testing invalid input
-				paymentDate("invalid", 0, [], [6, 7], true);
+				paymentDate("invalid", 0, [], [6, 7], "next");
 			}).toThrow("Invalid current date provided");
 		});
 
 		it("should throw on invalid dates in holidays array", () => {
 			expect(() => {
 				// @ts-expect-error Testing invalid input
-				paymentDate(createDate("2025-01-15"), 0, ["invalid"], [6, 7], true);
+				paymentDate(createDate("2025-01-15"), 0, ["invalid"], [6, 7], "next");
 			}).toThrow("Invalid holiday date found in holidays array");
 		});
 	});

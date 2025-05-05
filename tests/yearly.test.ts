@@ -207,7 +207,7 @@ describe("Yearly", () => {
 					interval: 2,
 					options: {
 						every: 1,
-						workdaysOnly: true,
+						workdaysOnly: "next" as const,
 					},
 				} satisfies YearlyPayment,
 			},

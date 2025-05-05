@@ -198,7 +198,7 @@ export function generator<T extends BaseEntry>({
 		const { start, period, interval, options } = entry.config;
 		const {
 			every = 1,
-			workdaysOnly = false,
+			workdaysOnly = undefined,
 			gracePeriod = 0,
 			each,
 			on,

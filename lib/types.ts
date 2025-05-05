@@ -75,7 +75,7 @@ export type WeeklyPayment = BasePayment & {
 	options?: Readonly<{
 		/** Whether payment should only occur on working days
 		 *it counts holidays and weekendDays as non-working days */
-		workdaysOnly?: boolean;
+		workdaysOnly?: "previous" | "next";
 		/** How many weeks between payments */
 		every: number;
 		/** Specific days of the week for payment (1-7) */
@@ -95,7 +95,7 @@ export type MonthlyPayment = BasePayment & {
 	options?: Readonly<{
 		/** Whether payment should only occur on working days
 		 *it counts holidays and weekendDays as non-working days */
-		workdaysOnly?: boolean;
+		workdaysOnly?: "previous" | "next";
 		/** How many months between payments */
 		every: number;
 		/** Specific days of the month for payment (1-31) */
@@ -115,7 +115,7 @@ export type YearlyPayment = BasePayment & {
 	options?: Readonly<{
 		/** Whether payment should only occur on working days
 		 *it counts holidays and weekendDays as non-working days */
-		workdaysOnly?: boolean;
+		workdaysOnly?: "previous" | "next";
 		/** How many years between payments */
 		every: number;
 		/** Specific months for payment (1-12) */

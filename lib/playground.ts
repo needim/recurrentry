@@ -32,7 +32,7 @@ const data = [
 			interval: 5,
 			options: {
 				every: 1,
-				workdaysOnly: true,
+				workdaysOnly: "next",
 			},
 		} satisfies WeeklyPayment,
 	},
@@ -48,13 +48,14 @@ const data = [
 			interval: 5,
 			options: {
 				every: 1,
-				workdaysOnly: true,
+				workdaysOnly: "next",
 				gracePeriod: 10,
 			},
 		} satisfies MonthlyPayment,
 	},
 ];
 
+// Let's generate the payments
 const result = generator({
 	data,
 	modifications: [

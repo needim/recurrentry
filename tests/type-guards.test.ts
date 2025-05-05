@@ -27,7 +27,7 @@ describe("TypeGuards", () => {
 				...baseConfig,
 				period: PERIOD.MONTH,
 				options: {
-					workdaysOnly: false,
+					workdaysOnly: undefined,
 					every: 1,
 				},
 			};
@@ -35,40 +35,13 @@ describe("TypeGuards", () => {
 		});
 	});
 
-	// describe("isWeeklyPayment", () => {
-	//   it("should return true for valid weekly payment config", () => {
-	//     const config = {
-	//       ...baseConfig,
-	//       period: PERIOD.WEEK,
-	//       options: {
-	//         workdaysOnly: false,
-	//         every: 1,
-	//         each: [1, 3],
-	//       },
-	//     };
-	//     expect(isWeeklyPayment(config)).toBe(true);
-	//   });
-
-	//   it("should return false for non-weekly payment configs", () => {
-	//     const config = {
-	//       ...baseConfig,
-	//       period: PERIOD.MONTH,
-	//       options: {
-	//         workdaysOnly: false,
-	//         every: 1,
-	//       },
-	//     };
-	//     expect(isWeeklyPayment(config)).toBe(false);
-	//   });
-	// });
-
 	describe("isMonthlyPayment", () => {
 		it("should return true for valid monthly payment config", () => {
 			const config = {
 				...baseConfig,
 				period: PERIOD.MONTH,
 				options: {
-					workdaysOnly: false,
+					workdaysOnly: undefined,
 					every: 1,
 					each: [1, 15],
 				},
@@ -81,7 +54,7 @@ describe("TypeGuards", () => {
 				...baseConfig,
 				period: PERIOD.YEAR,
 				options: {
-					workdaysOnly: false,
+					workdaysOnly: undefined,
 					every: 1,
 				},
 			};
@@ -95,7 +68,7 @@ describe("TypeGuards", () => {
 				...baseConfig,
 				period: PERIOD.YEAR,
 				options: {
-					workdaysOnly: true,
+					workdaysOnly: "next" as const,
 					every: 1,
 					each: [1, 6],
 				},
@@ -108,7 +81,7 @@ describe("TypeGuards", () => {
 				...baseConfig,
 				period: PERIOD.MONTH,
 				options: {
-					workdaysOnly: false,
+					workdaysOnly: undefined,
 					every: 1,
 				},
 			};
