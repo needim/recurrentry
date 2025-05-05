@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.8.0
+
+### Minor Changes
+
+- 42c8b2f: next or previous business day support
+
 ## 0.7.0
 
 ### Minor Changes
