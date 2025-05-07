@@ -98,6 +98,12 @@ export function generator<T extends BaseEntry>({
 }): Array<GeneratedEntry<T>> {
 	const result: Array<GeneratedEntry<T>> = [];
 
+	// for efficient lookup
+	const modificationsMap = new Map<string, Modification<T>>();
+	for (const mod of modifications) {
+		modificationsMap.set(`${mod.itemId}:${mod.index}`, mod);
+	}
+
 	const isInRange = (date: Temporal.PlainDate): boolean => {
 		if (!range) return true;
 
@@ -109,11 +115,11 @@ export function generator<T extends BaseEntry>({
 		return afterStart && beforeEnd;
 	};
 
-	// Updated helper function to apply modifications to an occurrence entry
+	// Helper function to apply modifications to an occurrence
 	function applyModifications<T extends BaseEntry>(
 		entry: T,
 		index: number,
-		modifications: Array<Modification<T>>,
+		modificationsMap: Map<string, Modification<T>>,
 		lastEntry: GeneratedEntry<T>,
 	): {
 		shouldDelete: boolean;
@@ -121,54 +127,55 @@ export function generator<T extends BaseEntry>({
 		applyToRestPayload: Partial<T> | null;
 		dateAdjustment?: DateAdjustment;
 	} {
-		for (const mod of modifications) {
-			if (mod.itemId === entry.id && mod.index === index) {
-				if (mod.payload.deleted) {
-					return {
-						shouldDelete: true,
-						deleteFuture: !!mod.restPayload?.deleted,
-						applyToRestPayload: null,
-					};
-				}
+		const modKey = `${entry.id}:${index}`;
+		const mod = modificationsMap.get(modKey);
 
-				if (mod.payload || mod.restPayload) {
-					lastEntry.$ = {
-						...lastEntry.$,
-						...mod.restPayload,
-						...mod.payload,
-					};
+		if (mod) {
+			if (mod.payload.deleted) {
+				return {
+					shouldDelete: true,
+					deleteFuture: !!mod.restPayload?.deleted,
+					applyToRestPayload: null,
+				};
+			}
 
-					// Handle date modifications
-					if (mod.payload?.date) {
-						const originalDate = lastEntry.actualDate;
-						const modifiedDate = mod.payload.date;
-						lastEntry.actualDate = modifiedDate;
-						lastEntry.paymentDate = modifiedDate;
+			if (mod.payload || mod.restPayload) {
+				lastEntry.$ = {
+					...lastEntry.$,
+					...mod.restPayload,
+					...mod.payload,
+				};
 
-						// Calculate date adjustment for future occurrences
-						if (mod.restPayload) {
-							const dateAdjustment = calculateDateAdjustment(
-								originalDate,
-								modifiedDate,
-								entry.config?.period || "none",
-							);
+				// Handle date modifications
+				if (mod.payload?.date) {
+					const originalDate = lastEntry.actualDate;
+					const modifiedDate = mod.payload.date;
+					lastEntry.actualDate = modifiedDate;
+					lastEntry.paymentDate = modifiedDate;
 
-							return {
-								shouldDelete: false,
-								deleteFuture: false,
-								applyToRestPayload: mod.restPayload,
-								dateAdjustment,
-							};
-						}
-					}
-
+					// Calculate date adjustment for future occurrences
 					if (mod.restPayload) {
+						const dateAdjustment = calculateDateAdjustment(
+							originalDate,
+							modifiedDate,
+							entry.config?.period || "none",
+						);
+
 						return {
 							shouldDelete: false,
 							deleteFuture: false,
 							applyToRestPayload: mod.restPayload,
+							dateAdjustment,
 						};
 					}
+				}
+
+				if (mod.restPayload) {
+					return {
+						shouldDelete: false,
+						deleteFuture: false,
+						applyToRestPayload: mod.restPayload,
+					};
 				}
 			}
 		}
@@ -210,7 +217,7 @@ export function generator<T extends BaseEntry>({
 		let dateAdjustment: DateAdjustment | undefined;
 
 		const maxInterval = calculateMaxInterval(
-			interval || 0, // interval might be undefined, default to 0
+			interval || 0,
 			period,
 			maxIntervals,
 		);
@@ -238,39 +245,46 @@ export function generator<T extends BaseEntry>({
 				);
 
 				index++;
-				const newEntry = {
+				const newEntryDollar = {
 					...entry,
 					...(applyToRestPayload || {}),
 				};
 
-				result.push({
-					$: newEntry,
+				const tempGeneratedEntry: GeneratedEntry<T> = {
+					$: newEntryDollar,
 					index,
 					actualDate: cycleDate,
 					paymentDate: nextDate,
-				});
+				};
 
-				const lastEntry = result[result.length - 1];
 				const {
 					shouldDelete,
 					deleteFuture,
 					applyToRestPayload: modPayload,
 					dateAdjustment: newDateAdjustment,
-				} = applyModifications(entry, index, modifications, lastEntry);
-				deleteRest = deleteFuture;
-
-				if (shouldDelete) {
-					result.pop();
-					if (deleteFuture) break;
-					continue;
-				}
+				} = applyModifications(
+					entry,
+					index,
+					modificationsMap,
+					tempGeneratedEntry,
+				);
 
 				if (modPayload) {
 					applyToRestPayload = modPayload;
 				}
-
 				if (newDateAdjustment) {
 					dateAdjustment = newDateAdjustment;
+				}
+
+				deleteRest = deleteFuture;
+
+				if (shouldDelete) {
+					if (deleteFuture) break;
+					continue;
+				}
+
+				if (isInRange(tempGeneratedEntry.paymentDate)) {
+					result.push(tempGeneratedEntry);
 				}
 
 				continue;
@@ -281,7 +295,7 @@ export function generator<T extends BaseEntry>({
 				const occurrenceDates: Temporal.PlainDate[] = [];
 
 				for (const target of each) {
-					let targetDate = baseDate;
+					let targetDate: Temporal.PlainDate | null = baseDate;
 
 					switch (period) {
 						case "week": {
@@ -360,40 +374,51 @@ export function generator<T extends BaseEntry>({
 					);
 
 					index++;
-					const newEntry = {
+					const newEntryDollar = {
 						...entry,
 						...(applyToRestPayload || {}),
 					};
 
-					result.push({
-						$: newEntry,
+					const tempGeneratedEntry: GeneratedEntry<T> = {
+						$: newEntryDollar,
 						index,
 						actualDate: occurrenceDate,
 						paymentDate: nextDate,
-					});
-					const lastEntry = result[result.length - 1];
+					};
+
 					const {
 						shouldDelete,
 						deleteFuture,
 						applyToRestPayload: modPayload,
 						dateAdjustment: newDateAdjustment,
-					} = applyModifications(entry, index, modifications, lastEntry);
-					deleteRest = deleteFuture;
-					if (shouldDelete) {
-						result.pop();
-						if (deleteFuture) break;
-						continue;
-					}
+					} = applyModifications(
+						entry,
+						index,
+						modificationsMap,
+						tempGeneratedEntry,
+					);
+
 					if (modPayload) {
 						applyToRestPayload = modPayload;
 					}
 					if (newDateAdjustment) {
 						dateAdjustment = newDateAdjustment;
 					}
+
+					deleteRest = deleteFuture;
+
+					if (shouldDelete) {
+						if (deleteFuture) break;
+						continue;
+					}
+
+					if (isInRange(tempGeneratedEntry.paymentDate)) {
+						result.push(tempGeneratedEntry);
+					}
 				}
 			} else {
 				// Handle single date per period
-				let _baseDate = baseDate;
+				let _baseDate: Temporal.PlainDate | null = baseDate;
 
 				// Apply date adjustment if exists
 				if (applyToRestPayload && dateAdjustment) {
@@ -417,37 +442,46 @@ export function generator<T extends BaseEntry>({
 				);
 
 				index++;
-				const newEntry = {
+				const newEntryDollar = {
 					...entry,
 					...(applyToRestPayload || {}),
 				};
 
-				result.push({
-					$: newEntry,
+				const tempGeneratedEntry: GeneratedEntry<T> = {
+					$: newEntryDollar,
 					index,
 					actualDate: _baseDate,
 					paymentDate: fixedNextDate,
-				});
-				const lastEntry = result[result.length - 1];
+				};
+
 				const {
 					shouldDelete,
 					deleteFuture,
 					applyToRestPayload: modPayload,
 					dateAdjustment: newDateAdjustment,
-				} = applyModifications(entry, index, modifications, lastEntry);
-				deleteRest = deleteFuture;
-
-				if (shouldDelete) {
-					result.pop();
-					if (deleteFuture) break;
-					continue; // Added to immediately skip deleted occurrence
-				}
+				} = applyModifications(
+					entry,
+					index,
+					modificationsMap,
+					tempGeneratedEntry,
+				);
 
 				if (modPayload) {
 					applyToRestPayload = modPayload;
 				}
 				if (newDateAdjustment) {
 					dateAdjustment = newDateAdjustment;
+				}
+
+				deleteRest = deleteFuture;
+
+				if (shouldDelete) {
+					if (deleteFuture) break;
+					continue;
+				}
+
+				if (isInRange(tempGeneratedEntry.paymentDate)) {
+					result.push(tempGeneratedEntry);
 				}
 			}
 
