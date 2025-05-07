@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.8.1
+
+### Patch Changes
+
+- f1a360d: performance tweaks
+
 ## 0.8.0
 
 ### Minor Changes
