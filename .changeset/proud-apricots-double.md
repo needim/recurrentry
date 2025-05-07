@@ -1,5 +1,0 @@
----
-"recurrentry": patch
----
-
-performance tweaks
