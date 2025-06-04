@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.9.0
+
+### Minor Changes
+
+- 70653c4: filter entires based on actual date, otherwise it overflows and messes with the montly revenue calc
+
 ## 0.8.1
 
 ### Patch Changes
