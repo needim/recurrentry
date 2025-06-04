@@ -493,7 +493,5 @@ export function generator<T extends BaseEntry>({
 	}
 
 	// Apply range filtering after all entries are generated
-	return range
-		? result.filter((entry) => isInRange(entry.paymentDate))
-		: result;
+	return range ? result.filter((entry) => isInRange(entry.actualDate)) : result;
 }
