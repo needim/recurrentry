@@ -283,7 +283,7 @@ export function generator<T extends BaseEntry>({
 					continue;
 				}
 
-				if (isInRange(tempGeneratedEntry.paymentDate)) {
+				if (isInRange(tempGeneratedEntry.actualDate)) {
 					result.push(tempGeneratedEntry);
 				}
 
@@ -412,7 +412,7 @@ export function generator<T extends BaseEntry>({
 						continue;
 					}
 
-					if (isInRange(tempGeneratedEntry.paymentDate)) {
+					if (isInRange(tempGeneratedEntry.actualDate)) {
 						result.push(tempGeneratedEntry);
 					}
 				}
@@ -480,7 +480,7 @@ export function generator<T extends BaseEntry>({
 					continue;
 				}
 
-				if (isInRange(tempGeneratedEntry.paymentDate)) {
+				if (isInRange(tempGeneratedEntry.actualDate)) {
 					result.push(tempGeneratedEntry);
 				}
 			}
