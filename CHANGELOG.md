@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.9.1
+
+### Patch Changes
+
+- d771263: actual date filtering
+
 ## 0.9.0
 
 ### Minor Changes
