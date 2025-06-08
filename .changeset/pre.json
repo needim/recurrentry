@@ -1,5 +1,5 @@
 {
-  "mode": "pre",
+  "mode": "exit",
   "tag": "preview",
   "initialVersions": {
     "recurrentry": "0.9.1"
