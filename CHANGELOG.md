@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.9.2-preview.0
+
+### Patch Changes
+
+- 4a7396d: test
+
 ## 0.9.1
 
 ### Patch Changes
