@@ -1,5 +1,14 @@
 # recurrentry
 
+## 0.9.2
+
+### Patch Changes
+
+- f793dce: wewewe
+- de58995: test
+- 4a7396d: test
+- 1b82876: test test
+
 ## 0.9.2-preview.2
 
 ### Patch Changes
