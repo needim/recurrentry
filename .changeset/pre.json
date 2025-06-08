@@ -1,0 +1,8 @@
+{
+  "mode": "pre",
+  "tag": "preview",
+  "initialVersions": {
+    "recurrentry": "0.9.1"
+  },
+  "changesets": []
+}
