@@ -4,5 +4,7 @@
   "initialVersions": {
     "recurrentry": "0.9.1"
   },
-  "changesets": []
+  "changesets": [
+    "sixty-crews-mate"
+  ]
 }
