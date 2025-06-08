@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.9.2-preview.2
+
+### Patch Changes
+
+- f793dce: wewewe
+
 ## 0.9.2-preview.1
 
 ### Patch Changes
