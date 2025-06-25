@@ -1,5 +1,0 @@
----
-"recurrentry": minor
----
-
-bump temporal
