@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.10.0
+
+### Minor Changes
+
+- 470c1d2: bump temporal
+
 ## 0.9.2
 
 ### Patch Changes

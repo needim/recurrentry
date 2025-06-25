@@ -1,6 +1,6 @@
 {
 	"name": "recurrentry",
-	"version": "0.9.2",
+	"version": "0.10.0",
 	"description": "A simple and easy-to-use library for recurring entries.",
 	"keywords": [],
 	"homepage": "https://github.com/needim/recurrentry",
@@ -31,7 +31,10 @@
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
-	"files": ["dist", "lib"],
+	"files": [
+		"dist",
+		"lib"
+	],
 	"scripts": {
 		"dev": "tsx watch lib/playground.ts",
 		"build": "tsc --noEmit && tsup lib/index.ts",
