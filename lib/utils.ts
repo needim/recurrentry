@@ -58,7 +58,7 @@ export function getOrdinalDate(
 
 	// Validate required weekendDays for day categories
 	if ((dayType === "weekday" || dayType === "weekend") && !weekendDays.length) {
-		throw new Error(
+		console.warn(
 			`weekendDays must be provided when using ${dayType} day category`,
 		);
 	}

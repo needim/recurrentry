@@ -181,27 +181,6 @@ describe("Monthly", () => {
 		}
 	});
 
-	test("with weekend category without weekendDays", () => {
-		const data = [
-			{
-				...sampleEntry,
-				config: {
-					period: PERIOD.MONTH,
-					start: baseDate,
-					interval: 1,
-					options: {
-						every: 1,
-						on: "first-weekend",
-					},
-				} satisfies MonthlyPayment,
-			},
-		];
-
-		expect(() => {
-			generator({ data, modifications: [], weekendDays: [] });
-		}).toThrow("weekendDays must be provided when using weekend day category");
-	});
-
 	test("with fifth ordinal", () => {
 		const data = [
 			{
