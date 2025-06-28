@@ -1,5 +1,11 @@
 # recurrentry
 
+## 0.11.0
+
+### Minor Changes
+
+- 6b0bdee: don't throw error when weekend days not provided. add wrapper function for generator
+
 ## 0.10.0
 
 ### Minor Changes
