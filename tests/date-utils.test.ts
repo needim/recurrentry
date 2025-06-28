@@ -9,7 +9,7 @@ import {
 describe("Date Utils Tests", () => {
 	test("addByPeriod with invalid period", () => {
 		const baseDate = createDate("2024-01-01");
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		// biome-ignore lint/suspicious/noExplicitAny: expected
 		const result = addByPeriod(baseDate, 1, "invalid-period" as any);
 		expect(result.equals(createDate("2024-01-02"))).toBe(true);
 	});

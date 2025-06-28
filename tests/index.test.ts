@@ -7,8 +7,8 @@ import {
 	isSinglePayment,
 	isWeeklyPayment,
 	isYearlyPayment,
-	paymentDate,
 	PERIOD,
+	paymentDate,
 	recurrentry,
 } from "../lib";
 
