@@ -1,5 +1,11 @@
 # recurrentry
 
+## 1.0.2
+
+### Patch Changes
+
+- 05b21b3: more perf improvements
+
 ## 1.0.1
 
 ### Patch Changes
