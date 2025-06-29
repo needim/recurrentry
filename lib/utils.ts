@@ -26,14 +26,22 @@ export function isValidDate(date: Temporal.PlainDate): boolean {
 	return date instanceof Temporal.PlainDate;
 }
 
+const WEEKDAY_NAMES = [
+	"monday",
+	"tuesday",
+	"wednesday",
+	"thursday",
+	"friday",
+	"saturday",
+	"sunday",
+] as const;
+
 export function getActualDayName(temporalDate: Temporal.PlainDate): string {
 	if (!(temporalDate instanceof Temporal.PlainDate)) {
 		throw new TypeError("Expected a Temporal.PlainDate instance");
 	}
 
-	return temporalDate
-		.toLocaleString("en-US", { weekday: "long" })
-		.toLocaleLowerCase();
+	return WEEKDAY_NAMES[temporalDate.dayOfWeek - 1];
 }
 
 export function isWeekdayByWeekendDays(
@@ -43,6 +51,33 @@ export function isWeekdayByWeekendDays(
 	return !weekendDays.includes(dayOfWeek);
 }
 
+const DAY_OF_WEEK_VALUES: ReadonlyArray<DayOfWeek> = [
+	"monday",
+	"tuesday",
+	"wednesday",
+	"thursday",
+	"friday",
+	"saturday",
+	"sunday",
+];
+
+const POSITION_COUNT_MAP = {
+	first: 1,
+	second: 2,
+	third: 3,
+	fourth: 4,
+	fifth: 5,
+} as const;
+
+const isSpecificDayOfWeek = (dt: string): dt is DayOfWeek => {
+	return DAY_OF_WEEK_VALUES.includes(dt as DayOfWeek);
+};
+
+const getDayNumberFromName = (name: DayOfWeek): number => {
+	// Temporal: 1 (Mon) to 7 (Sun)
+	return DAY_OF_WEEK_VALUES.indexOf(name) + 1;
+};
+
 export function getOrdinalDate(
 	date: Temporal.PlainDate,
 	on: Ordinal,
@@ -50,40 +85,19 @@ export function getOrdinalDate(
 ): Temporal.PlainDate | null {
 	const firstDayOfMonth = date.with({ day: 1 });
 	const targetMonth = firstDayOfMonth.month;
+	const daysInMonth = date.daysInMonth;
 
 	const [position, dayType] = on.split("-") as [
 		OrdinalPosition,
 		DayCategory | DayOfWeek,
 	];
 
-	// Validate required weekendDays for day categories
-	if ((dayType === "weekday" || dayType === "weekend") && !weekendDays.length) {
-		console.warn(
-			`weekendDays must be provided when using ${dayType} day category`,
-		);
-	}
-
-	const dayOfWeekValues: ReadonlyArray<DayOfWeek> = [
-		"monday",
-		"tuesday",
-		"wednesday",
-		"thursday",
-		"friday",
-		"saturday",
-		"sunday",
-	];
-	const isSpecificDayOfWeek = (dt: string): dt is DayOfWeek => {
-		return dayOfWeekValues.includes(dt as DayOfWeek);
-	};
-
-	const getDayNumberFromName = (name: DayOfWeek): number => {
-		// Temporal: 1 (Mon) to 7 (Sun)
-		return dayOfWeekValues.indexOf(name) + 1;
-	};
+	// Pre-compute weekend set for better performance
+	const weekendSet = weekendDays.length > 0 ? new Set(weekendDays) : null;
 
 	const isMatch = (currentEvalDate: Temporal.PlainDate): boolean => {
 		const dayOfWeekVal = currentEvalDate.dayOfWeek;
-		const isWeekday = isWeekdayByWeekendDays(dayOfWeekVal, weekendDays);
+		const isWeekday = !weekendSet?.has(dayOfWeekVal);
 		return (
 			dayType === "day" ||
 			(dayType === "weekday" && isWeekday) ||
@@ -92,21 +106,9 @@ export function getOrdinalDate(
 		);
 	};
 
-	// Optimized path for "first" through "fifth"
-	if (
-		position === "first" ||
-		position === "second" ||
-		position === "third" ||
-		position === "fourth" ||
-		position === "fifth"
-	) {
-		const targetCount = {
-			first: 1,
-			second: 2,
-			third: 3,
-			fourth: 4,
-			fifth: 5,
-		}[position];
+	if (position in POSITION_COUNT_MAP) {
+		const targetCount =
+			POSITION_COUNT_MAP[position as keyof typeof POSITION_COUNT_MAP];
 		let count = 0;
 
 		if (isSpecificDayOfWeek(dayType)) {
@@ -127,15 +129,16 @@ export function getOrdinalDate(
 		}
 		// Original logic for "day", "weekday", "weekend"
 		let currentDate = firstDayOfMonth;
-		while (currentDate.month === targetMonth) {
+		for (let day = 1; day <= daysInMonth; day++) {
 			if (isMatch(currentDate)) {
 				count++;
 				if (count === targetCount) {
 					return currentDate;
 				}
 			}
-			if (currentDate.day === currentDate.daysInMonth) break;
-			currentDate = currentDate.add({ days: 1 });
+			if (day < daysInMonth) {
+				currentDate = currentDate.add({ days: 1 });
+			}
 		}
 		return null;
 	}
@@ -144,24 +147,23 @@ export function getOrdinalDate(
 	if (position === "last") {
 		if (isSpecificDayOfWeek(dayType)) {
 			const targetDoW = getDayNumberFromName(dayType);
-			let currentDate = date.with({ day: date.daysInMonth });
-			// Adjust to the last occurrence of targetDoW in or before last day of month
+			let currentDate = date.with({ day: daysInMonth });
+			// Calculate the last occurrence directly
 			const daysToSubtract = (currentDate.dayOfWeek - targetDoW + 7) % 7;
 			currentDate = currentDate.subtract({ days: daysToSubtract });
 
-			if (currentDate.month === targetMonth) {
-				return currentDate;
-			}
-			return null;
+			return currentDate.month === targetMonth ? currentDate : null;
 		}
-		// Original logic for "day", "weekday", "weekend"
-		let currentDate = date.with({ day: date.daysInMonth });
-		while (currentDate.month === targetMonth) {
+
+		// Reverse iteration for better performance
+		let currentDate = date.with({ day: daysInMonth });
+		for (let day = daysInMonth; day >= 1; day--) {
 			if (isMatch(currentDate)) {
 				return currentDate;
 			}
-			if (currentDate.day === 1) break;
-			currentDate = currentDate.subtract({ days: 1 });
+			if (day > 1) {
+				currentDate = currentDate.subtract({ days: 1 });
+			}
 		}
 		return null;
 	}
@@ -170,30 +172,29 @@ export function getOrdinalDate(
 	if (position === "nextToLast") {
 		if (isSpecificDayOfWeek(dayType)) {
 			const targetDoW = getDayNumberFromName(dayType);
-			let currentDate = date.with({ day: date.daysInMonth });
+			let currentDate = date.with({ day: daysInMonth });
 
 			const daysToSubtract = (currentDate.dayOfWeek - targetDoW + 7) % 7;
 			currentDate = currentDate.subtract({ days: daysToSubtract });
 
 			if (currentDate.month !== targetMonth) {
-				return null; // No such day in the month
+				return null;
 			}
 
 			const lastOccurrence = currentDate;
 			const nextToLastOccurrence = lastOccurrence.subtract({ days: 7 });
 
-			if (nextToLastOccurrence.month === targetMonth) {
-				return nextToLastOccurrence;
-			}
-			// Only one occurrence, return it as per original logic's side effect for nextToLast
-			return lastOccurrence;
+			return nextToLastOccurrence.month === targetMonth
+				? nextToLastOccurrence
+				: lastOccurrence;
 		}
-		// Original logic for "day", "weekday", "weekend"
+
+		// Collect matches efficiently
 		let lastMatch: Temporal.PlainDate | null = null;
 		let nextToLastMatch: Temporal.PlainDate | null = null;
-		let currentDate = date.with({ day: date.daysInMonth });
+		let currentDate = date.with({ day: daysInMonth });
 
-		while (currentDate.month === targetMonth) {
+		for (let day = daysInMonth; day >= 1; day--) {
 			if (isMatch(currentDate)) {
 				if (lastMatch === null) {
 					lastMatch = currentDate;
@@ -202,14 +203,12 @@ export function getOrdinalDate(
 					return nextToLastMatch;
 				}
 			}
-			if (currentDate.day === 1) break;
-			currentDate = currentDate.subtract({ days: 1 });
+			if (day > 1) {
+				currentDate = currentDate.subtract({ days: 1 });
+			}
 		}
 
-		if (lastMatch !== null) {
-			return lastMatch;
-		}
-		return null;
+		return lastMatch;
 	}
 
 	return null;
@@ -221,17 +220,13 @@ export const createDate = (dateString: string): Temporal.PlainDate => {
 
 export function paymentDate(
 	current: Temporal.PlainDate,
+	holidaySet: Set<string>,
 	gracePeriod = 0,
-	holidays: Temporal.PlainDate[] = [],
 	weekendDays: number[] = [],
 	workdaysOnly?: "previous" | "next",
 ): Temporal.PlainDate {
 	if (!isValidDate(current)) {
 		throw new Error("Invalid current date provided");
-	}
-
-	if (holidays.some((date) => !isValidDate(date))) {
-		throw new Error("Invalid holiday date found in holidays array");
 	}
 
 	let plainDate = current;
@@ -240,13 +235,15 @@ export function paymentDate(
 		plainDate = plainDate.add({ days: gracePeriod });
 	}
 
-	if (workdaysOnly && (weekendDays.length > 0 || holidays.length > 0)) {
-		const holidaySet = new Set(holidays.map((h) => h.toString()));
+	if (workdaysOnly && (weekendDays.length > 0 || holidaySet.size > 0)) {
+		const weekendSet = weekendDays.length > 0 ? new Set(weekendDays) : null;
+		const increment = workdaysOnly === "next" ? 1 : -1;
+
 		while (
-			weekendDays.includes(plainDate.dayOfWeek) ||
+			weekendSet?.has(plainDate.dayOfWeek) ||
 			holidaySet.has(plainDate.toString())
 		) {
-			plainDate = plainDate.add({ days: workdaysOnly === "next" ? 1 : -1 });
+			plainDate = plainDate.add({ days: increment });
 		}
 	}
 

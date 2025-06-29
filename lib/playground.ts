@@ -1,10 +1,10 @@
 import {
+	createDate,
+	generator,
 	type MonthlyPayment,
 	PERIOD,
 	type SinglePayment,
 	type WeeklyPayment,
-	createDate,
-	generator,
 } from ".";
 
 const data = [

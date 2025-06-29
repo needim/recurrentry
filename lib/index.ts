@@ -6,7 +6,11 @@ import type { BaseEntry, GeneratedEntry, Modification } from "./types";
 export { generator } from "./generator";
 export * from "./type-guards";
 export * from "./types";
-export { addByPeriod, createDate, paymentDate } from "./utils";
+export {
+	addByPeriod,
+	createDate,
+	paymentDate,
+} from "./utils";
 
 /**
  * Creates a recurrentry instance with pre-configured weekend days and holidays.

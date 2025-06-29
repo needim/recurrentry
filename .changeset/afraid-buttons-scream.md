@@ -1,0 +1,5 @@
+---
+"recurrentry": major
+---
+
+performance optimizations

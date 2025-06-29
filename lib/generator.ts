@@ -98,21 +98,26 @@ export function generator<T extends BaseEntry>({
 }): Array<GeneratedEntry<T>> {
 	const result: Array<GeneratedEntry<T>> = [];
 
-	// for efficient lookup
+	const holidaySet = new Set(holidays.map((h) => h.toString()));
+
 	const modificationsMap = new Map<string, Modification<T>>();
 	for (const mod of modifications) {
 		modificationsMap.set(`${mod.itemId}:${mod.index}`, mod);
 	}
 
+	const hasRange = !!range;
+	const rangeStart = range?.start;
+	const rangeEnd = range?.end;
+
 	const isInRange = (date: Temporal.PlainDate): boolean => {
-		if (!range) return true;
+		if (!hasRange) return true;
 
-		const afterStart =
-			!range.start || Temporal.PlainDate.compare(date, range.start) >= 0;
-		const beforeEnd =
-			!range.end || Temporal.PlainDate.compare(date, range.end) <= 0;
+		if (rangeStart && Temporal.PlainDate.compare(date, rangeStart) < 0)
+			return false;
+		if (rangeEnd && Temporal.PlainDate.compare(date, rangeEnd) > 0)
+			return false;
 
-		return afterStart && beforeEnd;
+		return true;
 	};
 
 	// Helper function to apply modifications to an occurrence
@@ -190,15 +195,14 @@ export function generator<T extends BaseEntry>({
 	for (const entry of data) {
 		// Handle single payments
 		if (!entry.config || entry.config.period === "none") {
-			// For single payments, we don't need to apply modifications, they are as is
-			const newEntry = { ...entry };
-			result.push({
-				$: newEntry,
-				index: 1,
-				actualDate: entry.date,
-				paymentDate: entry.date,
-			});
-
+			if (isInRange(entry.date)) {
+				result.push({
+					$: entry, // Avoid unnecessary object spread for single payments
+					index: 1,
+					actualDate: entry.date,
+					paymentDate: entry.date,
+				});
+			}
 			continue;
 		}
 
@@ -222,12 +226,18 @@ export function generator<T extends BaseEntry>({
 			maxIntervals,
 		);
 
-		// Generate occurrences
+		// Pre-allocate arrays for better performance when processing 'each' arrays
+		const eachLength = each?.length || 0;
+		const hasEach = eachLength > 0;
+
+		// Generate occurrences with optimized loops
 		for (let i = 0; i < maxInterval; i++) {
+			if (deleteRest) break; // Early exit optimization
+
 			const baseDate = addByPeriod(start, i * every, period);
 
 			// Special handling for weekly period when no 'each' is specified
-			if (period === "week" && (!each || each.length === 0)) {
+			if (period === "week" && !hasEach) {
 				// For simple weekly cycles, calculate the date by adding weeks
 				let cycleDate = addByPeriod(start, i * every * 7, "none");
 
@@ -238,17 +248,18 @@ export function generator<T extends BaseEntry>({
 
 				const nextDate = paymentDate(
 					cycleDate,
+					holidaySet,
 					gracePeriod,
-					holidays,
 					weekendDays,
 					workdaysOnly,
 				);
 
 				index++;
-				const newEntryDollar = {
-					...entry,
-					...(applyToRestPayload || {}),
-				};
+
+				// Optimize object creation - avoid spreading when possible
+				const newEntryDollar = applyToRestPayload
+					? { ...entry, ...applyToRestPayload }
+					: entry;
 
 				const tempGeneratedEntry: GeneratedEntry<T> = {
 					$: newEntryDollar,
@@ -283,6 +294,7 @@ export function generator<T extends BaseEntry>({
 					continue;
 				}
 
+				// Only add to result if in range (avoid creating objects for out-of-range dates)
 				if (isInRange(tempGeneratedEntry.actualDate)) {
 					result.push(tempGeneratedEntry);
 				}
@@ -291,29 +303,28 @@ export function generator<T extends BaseEntry>({
 			}
 
 			// Handle 'each' option for different period types
-			if (each?.length) {
+			if (hasEach && each?.length) {
+				// Pre-allocate array for occurrence dates
 				const occurrenceDates: Temporal.PlainDate[] = [];
+				occurrenceDates.length = eachLength; // Reserve capacity
+				let occurrenceCount = 0;
 
-				for (const target of each) {
+				for (let j = 0; j < eachLength; j++) {
+					const target = each[j];
 					let targetDate: Temporal.PlainDate | null = baseDate;
 
 					switch (period) {
 						case "week": {
 							// For weekly payments, each represents days of the week (1-7)
-							// Calculate the target day within the current week
-							if (target < 1 || target > 7) {
-								// Skip invalid day of week
-								continue;
-							}
+							if (target < 1 || target > 7) continue; // Skip invalid day
 
-							// Add the offset for this specific period ('every' weeks)
+							// Optimize week calculation
 							const weekOffset = i * every * 7;
 							const periodStart = start.add({ days: weekOffset });
 							const periodStartOfWeek = periodStart.with({
 								day: periodStart.day - periodStart.dayOfWeek + 1,
 							});
 
-							// Add days to get to the target day within this period
 							targetDate = periodStartOfWeek.add({ days: target - 1 });
 
 							// Apply date adjustment if exists
@@ -323,61 +334,76 @@ export function generator<T extends BaseEntry>({
 							break;
 						}
 						case "month": {
-							// Adjust to the target day within the current month
-							targetDate = targetDate.with({ day: target });
+							// Optimize month adjustment
+							try {
+								targetDate = targetDate.with({ day: target });
+							} catch {
+								targetDate = null; // Invalid day for this month
+							}
 							break;
 						}
 						case "year": {
-							// Adjust to the target month within the current year
-							targetDate = targetDate.with({ month: target });
+							// Optimize year adjustment
+							try {
+								targetDate = targetDate.with({ month: target });
 
-							// Apply date adjustment if exists
-							if (applyToRestPayload && dateAdjustment) {
-								// For yearly entries, we need to maintain the modified month and day
-								if (dateAdjustment.months !== undefined) {
-									targetDate = targetDate.with({
-										month: target + dateAdjustment.months,
-									});
+								// Apply date adjustment if exists
+								if (applyToRestPayload && dateAdjustment) {
+									if (dateAdjustment.months !== undefined) {
+										targetDate = targetDate.with({
+											month: Math.min(
+												12,
+												Math.max(1, target + dateAdjustment.months),
+											),
+										});
+									}
+									if (dateAdjustment.days !== undefined) {
+										const newDay = Math.min(
+											targetDate.daysInMonth,
+											Math.max(1, targetDate.day + dateAdjustment.days),
+										);
+										targetDate = targetDate.with({ day: newDay });
+									}
 								}
-								if (dateAdjustment.days !== undefined) {
-									targetDate = targetDate.with({
-										day: targetDate.day + dateAdjustment.days,
-									});
-								}
-							}
 
-							// Apply ordinal specification for yearly payments if provided
-							if (on && targetDate) {
-								targetDate = getOrdinalDate(targetDate, on, weekendDays);
+								// Apply ordinal specification for yearly payments if provided
+								if (on && targetDate) {
+									targetDate = getOrdinalDate(targetDate, on, weekendDays);
+								}
+							} catch {
+								targetDate = null; // Invalid month/day combination
 							}
 							break;
 						}
 					}
 
-					// Only add the occurrence if the date is valid
+					// Only add valid dates
 					if (targetDate) {
-						occurrenceDates.push(targetDate);
+						occurrenceDates[occurrenceCount++] = targetDate;
 					}
 				}
 
-				// Sort dates chronologically
-				occurrenceDates.sort((a, b) => Temporal.PlainDate.compare(a, b));
+				// Trim array to actual size and sort
+				occurrenceDates.length = occurrenceCount;
+				if (occurrenceCount > 1) {
+					occurrenceDates.sort((a, b) => Temporal.PlainDate.compare(a, b));
+				}
 
 				// Process each occurrence date
-				for (const occurrenceDate of occurrenceDates) {
+				for (let k = 0; k < occurrenceCount; k++) {
+					const occurrenceDate = occurrenceDates[k];
 					const nextDate = paymentDate(
 						occurrenceDate,
+						holidaySet,
 						gracePeriod,
-						holidays,
 						weekendDays,
 						workdaysOnly,
 					);
 
 					index++;
-					const newEntryDollar = {
-						...entry,
-						...(applyToRestPayload || {}),
-					};
+					const newEntryDollar = applyToRestPayload
+						? { ...entry, ...applyToRestPayload }
+						: entry;
 
 					const tempGeneratedEntry: GeneratedEntry<T> = {
 						$: newEntryDollar,
@@ -435,17 +461,16 @@ export function generator<T extends BaseEntry>({
 
 				const fixedNextDate = paymentDate(
 					_baseDate,
+					holidaySet,
 					gracePeriod,
-					holidays,
 					weekendDays,
 					workdaysOnly,
 				);
 
 				index++;
-				const newEntryDollar = {
-					...entry,
-					...(applyToRestPayload || {}),
-				};
+				const newEntryDollar = applyToRestPayload
+					? { ...entry, ...applyToRestPayload }
+					: entry;
 
 				const tempGeneratedEntry: GeneratedEntry<T> = {
 					$: newEntryDollar,
@@ -485,13 +510,9 @@ export function generator<T extends BaseEntry>({
 				}
 			}
 
-			// If a deletion modification flagged the rest to be removed, exit early.
-			if (deleteRest) {
-				break;
-			}
+			if (deleteRest) break;
 		}
 	}
 
-	// Apply range filtering after all entries are generated
-	return range ? result.filter((entry) => isInRange(entry.actualDate)) : result;
+	return result;
 }
