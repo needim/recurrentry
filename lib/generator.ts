@@ -120,6 +120,10 @@ export function generator<T extends BaseEntry>({
 		return true;
 	};
 
+	const isAfterRange = (date: Temporal.PlainDate): boolean => {
+		return !!rangeEnd && Temporal.PlainDate.compare(date, rangeEnd) > 0;
+	};
+
 	// Helper function to apply modifications to an occurrence
 	function applyModifications<T extends BaseEntry>(
 		entry: T,
@@ -299,6 +303,11 @@ export function generator<T extends BaseEntry>({
 					result.push(tempGeneratedEntry);
 				}
 
+				// Early exit if we've passed the range end - all future occurrences will also be out of range
+				if (isAfterRange(tempGeneratedEntry.actualDate)) {
+					break;
+				}
+
 				continue;
 			}
 
@@ -441,6 +450,12 @@ export function generator<T extends BaseEntry>({
 					if (isInRange(tempGeneratedEntry.actualDate)) {
 						result.push(tempGeneratedEntry);
 					}
+
+					// Early exit if we've passed the range end - all future occurrences will also be out of range
+					if (isAfterRange(tempGeneratedEntry.actualDate)) {
+						deleteRest = true;
+						break;
+					}
 				}
 			} else {
 				// Handle single date per period
@@ -507,6 +522,11 @@ export function generator<T extends BaseEntry>({
 
 				if (isInRange(tempGeneratedEntry.actualDate)) {
 					result.push(tempGeneratedEntry);
+				}
+
+				// Early exit if we've passed the range end - all future occurrences will also be out of range
+				if (isAfterRange(tempGeneratedEntry.actualDate)) {
+					break;
 				}
 			}
 

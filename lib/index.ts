@@ -3,6 +3,7 @@ import { MAX_INTERVALS } from "./defaults";
 import { generator } from "./generator";
 import type { BaseEntry, GeneratedEntry, Modification } from "./types";
 
+export { MAX_INTERVALS } from "./defaults";
 export { generator } from "./generator";
 export * from "./type-guards";
 export * from "./types";
