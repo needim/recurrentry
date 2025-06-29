@@ -1,5 +1,11 @@
 # recurrentry
 
+## 1.0.0
+
+### Major Changes
+
+- b8b2e07: performance optimizations
+
 ## 0.11.0
 
 ### Minor Changes
