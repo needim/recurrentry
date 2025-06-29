@@ -1,5 +1,11 @@
 # recurrentry
 
+## 1.0.1
+
+### Patch Changes
+
+- ccd3933: perf: early exit
+
 ## 1.0.0
 
 ### Major Changes
